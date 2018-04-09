@@ -28,7 +28,9 @@ public class Preprocessor {
             try (Scanner scanner = new Scanner(file)) {
                 while (scanner.hasNextLine()) {
                     String line = scanner.nextLine().trim().toLowerCase();
-                    stopWords.add(line);
+                    if (line.length() > 0) {
+                        stopWords.add(line);
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -44,7 +46,9 @@ public class Preprocessor {
             while (tokenizer.nextToken() != StreamTokenizer.TT_EOF) {
                 String val = tokenizer.sval;
 
-                result.add(val);
+                if (val != null && !stopWords.contains(val)) {
+                    result.add(val);
+                }
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);

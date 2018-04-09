@@ -24,10 +24,39 @@ class PreprocessorTest {
 
         assertThat(actualOutput, is(expectedOutput));
     }
+
     @Test
     void isDoingTokenization() {
         // arrange
         String input = "hello advanced information retrieval";
+        List<String> expectedOutput = Arrays.asList("hello", "advanced", "information", "retrieval");
+
+        // act
+        List<String> actualOutput = Preprocessor.getInstance().preprocess(input);
+
+        // assert
+
+        assertThat(actualOutput, is(expectedOutput));
+    }
+
+    @Test
+    void isDoingTokenizationWithComma() {
+        // arrange
+        String input = "hello, advanced information - retrieval";
+        List<String> expectedOutput = Arrays.asList("hello", "advanced", "information", "retrieval");
+
+        // act
+        List<String> actualOutput = Preprocessor.getInstance().preprocess(input);
+
+        // assert
+
+        assertThat(actualOutput, is(expectedOutput));
+    }
+
+    @Test
+    void isDoingStopWordRemoval() {
+        // arrange
+        String input = "hello i am the advanced information retrieval";
         List<String> expectedOutput = Arrays.asList("hello", "advanced", "information", "retrieval");
 
         // act
