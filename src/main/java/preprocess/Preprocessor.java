@@ -13,6 +13,10 @@ public class Preprocessor {
 
     private Set<String> stopWords;
 
+    private boolean isStopWordRemovalEnabled = true;
+    private boolean isCaseFolding = true;
+    private boolean isStemming = true;
+
     public static Preprocessor getInstance() {
         return ourInstance;
     }
@@ -41,12 +45,23 @@ public class Preprocessor {
     public List<String> preprocess(String input) {
         List<String> result = new LinkedList<>();
         StreamTokenizer tokenizer = new StreamTokenizer(new StringReader(input));
-        tokenizer.lowerCaseMode(true);
+        tokenizer.lowerCaseMode(isCaseFolding);
         try {
             while (tokenizer.nextToken() != StreamTokenizer.TT_EOF) {
                 String val = tokenizer.sval;
 
-                if (val != null && !stopWords.contains(val)) {
+                boolean isStopword = this.isStopWordRemovalEnabled && stopWords.contains(val);
+
+                if (val != null && !isStopword) {
+
+                    if (isStemming) {
+                        // weird Java Class is weird
+                        Stemmer s = new Stemmer();
+                        s.add(val.toCharArray(), val.length());
+                        s.stem();
+                        val = s.toString();
+                    }
+
                     result.add(val);
                 }
             }
@@ -55,5 +70,29 @@ public class Preprocessor {
         }
 
         return result;
+    }
+
+    public void setStemming(boolean stemming) {
+        isStemming = stemming;
+    }
+
+    public boolean isStemming() {
+        return isStemming;
+    }
+
+    public void setCaseFolding(boolean caseFolding) {
+        isCaseFolding = caseFolding;
+    }
+
+    public boolean isCaseFolding() {
+        return isCaseFolding;
+    }
+
+    public void setStopWordRemovalEnabled(boolean stopWordRemovalEnabled) {
+        isStopWordRemovalEnabled = stopWordRemovalEnabled;
+    }
+
+    public boolean isStopWordRemovalEnabled() {
+        return isStopWordRemovalEnabled;
     }
 }
