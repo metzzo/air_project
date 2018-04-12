@@ -88,7 +88,7 @@ public class Indexer {
         return new InvertedIndex();
     }
 
-    public void indexFile(File file) {
+    public InvertedIndex indexFile(File file) {
         if (!file.exists()) {
             throw new RuntimeException("File to index does not exist");
         }
@@ -119,6 +119,20 @@ public class Indexer {
             for (String word : doc.words) {
                 System.out.print(word + " ");
             }
+            System.out.println();
         }
+
+        // build inverted index for file
+        InvertedIndex baseIndex = new InvertedIndex();
+        for (Document doc : documents) {
+            InvertedIndex index = new InvertedIndex();
+            for (String word : doc.words) {
+                index.putWord(word, doc.docNo);
+            }
+
+            baseIndex.merge(index);
+        }
+
+        return baseIndex;
     }
 }
