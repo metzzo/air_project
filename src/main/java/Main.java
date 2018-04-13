@@ -12,7 +12,7 @@ public class Main {
         }
         File folder = new File(args[0]);
         List<File> files = Indexer.getInstance().getFilesInDir(folder);
-        InvertedIndex index = Indexer.getInstance().index(files, 8);
+        InvertedIndex index = Indexer.getInstance().index(files, 1);
 
     }
 }

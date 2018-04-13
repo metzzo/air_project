@@ -163,31 +163,63 @@ public class Indexer {
 
         return index;
     }
-
     public InvertedIndex indexFile(File file) {
         if (!file.exists()) {
             throw new RuntimeException("File to index does not exist");
         }
+        synchronized (System.out) {
+            System.out.println("Indexing File " + file.getPath());
+        }
         List<Document> documents = new LinkedList<>();
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        spf.setNamespaceAware(true);
-        try {
-            SAXParser saxParser = spf.newSAXParser();
-            XMLReader xmlReader = saxParser.getXMLReader();
-            xmlReader.setContentHandler(new XMLHandler(documents));
+        
+        try (FileInputStream fstream = new FileInputStream(file)) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
 
-            // trick parser to think its XML
-            List<InputStream> streams = Arrays.asList(
-                    new ByteArrayInputStream("<root>".getBytes()),
-                    new FileInputStream(file),
-                    new ByteArrayInputStream("</root>".getBytes())
-            );
-            InputStream is = new SequenceInputStream(Collections.enumeration(streams));
-            xmlReader.parse(new InputSource(is));
-        } catch (ParserConfigurationException | SAXException | IOException e) {
+            String strLine;
+            Document currentDocument = null;
+            StringBuilder content =  null;
+            while ((strLine = br.readLine()) != null)   {
+                int currentPos = 0;
+                while (true) {
+                    int startPos = strLine.indexOf('<', currentPos);
+                    if (startPos == -1) {
+                        break;
+                    }
+                    int endPos = strLine.indexOf('>', startPos);
+                    if (content != null) {
+                        content.append(strLine, currentPos, startPos);
+                    }
+
+                    String text = strLine.substring(startPos + 1, endPos).toUpperCase();
+                    if (text.equals("DOCNO")) {
+                        content = new StringBuilder();
+                    } else if (text.equals("DOC")) {
+                        currentDocument = new Document();
+                    } else if (text.equals("TEXT")) {
+                        content = new StringBuilder();
+                    } else if (text.equals("/DOCNO")) {
+                        currentDocument.docNo = content.toString().trim();
+                        content = null;
+                    } else if (text.equals("/TEXT")) {
+                        currentDocument.words = Preprocessor.getInstance().preprocess(content.toString());
+                        content = null;
+                    } else if (text.equals("/DOC")) {
+                        documents.add(currentDocument);
+                        currentDocument = null;
+                    }
+
+                    currentPos = endPos + 1;
+                }
+                if (content != null) {
+                    content.append(strLine, currentPos, strLine.length());
+                }
+            }
+            br.close();
+        } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+
 
 //        for (Document doc : documents) {
 //            System.out.println(doc.docNo);
