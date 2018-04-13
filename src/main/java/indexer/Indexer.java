@@ -142,6 +142,7 @@ public class Indexer {
                 }
                 if (content != null) {
                     content.append(strLine, currentPos, strLine.length());
+                    content.append('\n');
                 }
             }
             br.close();

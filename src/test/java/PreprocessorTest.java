@@ -49,7 +49,7 @@ class PreprocessorTest {
     @Test
     void isDoingTokenizationWithComma() {
         // arrange
-        String input = "hello, advanced information - retrieval";
+        String input = "hello, advanced information - retrieval. . ( ) _ -";
         List<String> expectedOutput = Arrays.asList("hello", "advanced", "information", "retrieval");
 
         // act

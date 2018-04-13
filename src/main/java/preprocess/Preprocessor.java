@@ -50,6 +50,10 @@ public class Preprocessor {
             while (tokenizer.nextToken() != StreamTokenizer.TT_EOF) {
                 String val = tokenizer.sval;
 
+                if (val != null) {
+                    val = val.replaceAll("\\.", "");
+                }
+
                 boolean isStopword = this.isStopWordRemovalEnabled && stopWords.contains(val);
 
                 if (val != null && !isStopword) {

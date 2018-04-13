@@ -63,10 +63,11 @@ public class InvertedIndex {
             IndexValue value = this.index.get(word);
             System.out.print(word + ": ");
             for (String doc : value.documents) {
-                System.out.print(doc+" ");
+                System.out.print(doc+";");
             }
             System.out.println();
         }
+        System.out.println();
     }
 
     @Override
