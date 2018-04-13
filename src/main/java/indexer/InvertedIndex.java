@@ -1,18 +1,101 @@
 package indexer;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InvertedIndex {
-    public static class IndexKey {
-        int count;
-        String document;
-    }
-
     public static class IndexValue {
-        List<String> words;
+        Set<String> documents;
+
+        public IndexValue(Set<String> documents) {
+            this.documents = documents;
+        }
+        public IndexValue(String document) {
+            this.documents = new HashSet<>(Arrays.asList(document));
+        }
+
+        public Set<String> getDocuments() {
+            return this.documents;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof IndexValue) || getClass() != obj.getClass()) {
+                return false;
+            }
+            IndexValue other = (IndexValue)obj;
+            return other.documents.containsAll(this.documents) && this.documents.containsAll(other.documents);
+        }
     }
 
-    private Map<IndexKey, IndexValue> index;
+    private Map<String, IndexValue> index;
 
+    public InvertedIndex() {
+        this.index = new HashMap<>();
+    }
+
+    public void putWord(String word, String document) {
+        if (!this.index.containsKey(word)) {
+            this.index.put(word, new IndexValue(document));
+        } else {
+            IndexValue val = this.index.get(word);
+            val.documents.add(document);
+        }
+    }
+
+    public void merge(InvertedIndex other) {
+        for (String word : other.index.keySet()) {
+            IndexValue value = other.index.get(word);
+            for (String doc : value.documents) {
+                this.putWord(word, doc);
+            }
+        }
+    }
+
+    public Map<String, IndexValue> getIndex() {
+        return this.index;
+    }
+
+    public void debugPrint() {
+        for (String word : this.index.keySet()) {
+            IndexValue value = this.index.get(word);
+            System.out.print(word + ": ");
+            for (String doc : value.documents) {
+                System.out.print(doc+";");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof InvertedIndex) || getClass() != obj.getClass()) {
+            return false;
+        }
+        InvertedIndex other = (InvertedIndex)obj;
+
+        for (String word : this.index.keySet()) {
+            IndexValue myValue = this.index.get(word);
+            IndexValue otherValue = other.index.get(word);
+            if (!myValue.equals(otherValue)) {
+                return false;
+            }
+        }
+
+        for (String word : other.index.keySet()) {
+            IndexValue myValue = this.index.get(word);
+            IndexValue otherValue = other.index.get(word);
+            if (!myValue.equals(otherValue)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

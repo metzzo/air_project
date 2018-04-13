@@ -16,6 +16,7 @@ public class Preprocessor {
     private boolean isStopWordRemovalEnabled = true;
     private boolean isCaseFolding = true;
     private boolean isStemming = true;
+    private int minLength = 2;
 
     public static Preprocessor getInstance() {
         return ourInstance;
@@ -50,6 +51,10 @@ public class Preprocessor {
             while (tokenizer.nextToken() != StreamTokenizer.TT_EOF) {
                 String val = tokenizer.sval;
 
+                if (val != null) {
+                    val = val.replaceAll("\\.", "");
+                }
+
                 boolean isStopword = this.isStopWordRemovalEnabled && stopWords.contains(val);
 
                 if (val != null && !isStopword) {
@@ -62,7 +67,9 @@ public class Preprocessor {
                         val = s.toString();
                     }
 
-                    result.add(val);
+                    if (val.length() >= minLength) {
+                        result.add(val);
+                    }
                 }
             }
         } catch (Exception ex) {
