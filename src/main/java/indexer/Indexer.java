@@ -105,6 +105,10 @@ public class Indexer {
                     if (this.queue.size() > 0) {
                         toProcess = this.queue.get(0);
                         this.queue.remove(0);
+
+                        synchronized (System.out) {
+                            System.out.println("Indexing File " + toProcess.getPath() + " remaining files " + this.queue.size());
+                        }
                     } else {
                         toProcess = null;
                     }
@@ -142,7 +146,7 @@ public class Indexer {
             t.start();
             worker.add(t);
         }
-
+        System.out.println("Files to index: " + files.size());
         for (Thread t : worker) {
             try {
                 t.join();
@@ -167,11 +171,8 @@ public class Indexer {
         if (!file.exists()) {
             throw new RuntimeException("File to index does not exist");
         }
-        synchronized (System.out) {
-            System.out.println("Indexing File " + file.getPath());
-        }
         List<Document> documents = new LinkedList<>();
-        
+
         try (FileInputStream fstream = new FileInputStream(file)) {
             BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
 
@@ -219,15 +220,6 @@ public class Indexer {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-
-
-//        for (Document doc : documents) {
-//            System.out.println(doc.docNo);
-//            for (String word : doc.words) {
-//                System.out.print(word + " ");
-//            }
-//            System.out.println();
-//        }
 
         // build inverted index for file
         InvertedIndex baseIndex = new InvertedIndex();
