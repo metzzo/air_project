@@ -41,6 +41,39 @@ class InvertedIndexTest {
     }
 
     @Test
+    void isMergeEmptyWorking() {
+        // arrange
+        InvertedIndex a = new InvertedIndex();
+        InvertedIndex b = new InvertedIndex();
+        InvertedIndex expected = new InvertedIndex();
+
+        // act
+        a.merge(b);
+
+        // assert
+        assertThat(a, is(expected));
+    }
+
+    @Test
+    void isMergeSameWorking() {
+        // arrange
+        InvertedIndex a = new InvertedIndex();
+        a.putWord("a", "doc1");
+
+        InvertedIndex b = new InvertedIndex();
+        b.putWord("a", "doc1");
+
+        InvertedIndex expected = new InvertedIndex();
+        expected.putWord("a", "doc1");
+
+        // act
+        a.merge(b);
+
+        // assert
+        assertThat(a, is(expected));
+    }
+
+    @Test
     void isPutWordWorking() {
         // arrange
         InvertedIndex a = new InvertedIndex();
@@ -55,7 +88,7 @@ class InvertedIndexTest {
         Map<String, InvertedIndex.IndexValue> index = a.getIndex();
 
         assertThat(index.size(), is(2));
-        assertThat(index.get("a"), is(new InvertedIndex.IndexValue(new HashSet<>(Arrays.asList(new String[] { "doc1", "doc2" })))));
+        assertThat(index.get("a"), is(new InvertedIndex.IndexValue(new HashSet<>(Arrays.asList("doc1", "doc2")))));
         assertThat(index.get("b"), is(new InvertedIndex.IndexValue("doc3")));
     }
 }

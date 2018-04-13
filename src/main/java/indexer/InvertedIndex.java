@@ -42,8 +42,8 @@ public class InvertedIndex {
     }
 
     public void merge(InvertedIndex other) {
-        for (String word : this.index.keySet()) {
-            IndexValue value = this.index.get(word);
+        for (String word : other.index.keySet()) {
+            IndexValue value = other.index.get(word);
             for (String doc : value.documents) {
                 this.putWord(word, doc);
             }

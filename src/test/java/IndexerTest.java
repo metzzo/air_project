@@ -1,26 +1,55 @@
 import indexer.Indexer;
+import indexer.InvertedIndex;
 import org.junit.jupiter.api.Test;
+import preprocess.Preprocessor;
 
 import java.io.File;
 import java.net.URL;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndexerTest {
+    @Test
+    void indexSimpleFile() {
+        // arrange
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL res = classLoader.getResource("simpletestdoc.txt");
+        File file = new File(res.getFile());
+        List<String> words = Preprocessor.getInstance().preprocess("hello my name is robert");
+        InvertedIndex expectedIndex = new InvertedIndex();
+        for (String word : words) {
+            expectedIndex.putWord(word, "LA010289-0001");
+        }
+
+        // act
+        InvertedIndex result = new Indexer().indexFile(file);
+
+        // assert
+        assertThat(result, is(not(nullValue())));
+        assertThat(result, is(expectedIndex));
+    }
+
 
     @Test
-    void indexFile() {
+    void indexLargeFile() {
         // arrange
         ClassLoader classLoader = getClass().getClassLoader();
         URL res = classLoader.getResource("testdoc.txt");
         File file = new File(res.getFile());
 
         // act
-        new Indexer().indexFile(file);
+        InvertedIndex result = new Indexer().indexFile(file);
 
         // assert
-
+        assertThat(result, is(not(nullValue())));
+        assertThat(result.getIndex().size(), is(greaterThan(10)));
+        assertThat(result.getIndex(), hasKey("mother"));
+        assertThat(result.getIndex(), hasKey("numbers"));
     }
 }
