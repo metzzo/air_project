@@ -11,6 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
 
 public class Indexer {
@@ -174,7 +175,7 @@ public class Indexer {
         List<Document> documents = new LinkedList<>();
 
         try (FileInputStream fstream = new FileInputStream(file)) {
-            BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+            BufferedReader br = new BufferedReader(new InputStreamReader(fstream, Charset.forName("ISO8859-1")));
 
             String strLine;
             Document currentDocument = null;
