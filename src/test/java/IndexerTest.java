@@ -31,7 +31,7 @@ class IndexerTest {
         }
 
         // act
-        InvertedIndex result = new Indexer().indexFile(file);
+        InvertedIndex result = Indexer.getInstance().indexFile(file);
 
         // assert
         assertThat(result, is(not(nullValue())));
@@ -47,13 +47,35 @@ class IndexerTest {
         File file = new File(res.getFile());
 
         // act
-        InvertedIndex result = new Indexer().indexFile(file);
+        InvertedIndex result = Indexer.getInstance().indexFile(file);
 
         // assert
         assertThat(result, is(not(nullValue())));
         assertThat(result.getIndex().size(), is(greaterThan(10)));
         assertThat(result.getIndex(), hasKey("mother"));
         assertThat(result.getIndex(), hasKey("number"));
+    }
+
+    @Test
+    void indexingWorking() {
+        // arrange
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL res1 = classLoader.getResource("testdoc.txt");
+        File file1 = new File(res1.getFile());
+        URL res2 = classLoader.getResource("testdoc2.txt");
+        File file2 = new File(res2.getFile());
+        List<File> files = Arrays.asList(file1, file2);
+
+        // act
+        InvertedIndex result = Indexer.getInstance().index(files, 8);
+
+        // assert
+        result.debugPrint();
+        assertThat(result, is(not(nullValue())));
+        assertThat(result.getIndex(), hasKey("mother"));
+        assertThat(result.getIndex(), hasKey("number"));
+        InvertedIndex.IndexValue val = result.getIndex().get("mother");
+        assertThat(val.getDocuments(), is((Set<String>)(new HashSet<>(Arrays.asList("LA010289-0003", "LA010289-0004")))));
     }
 
     @Test
@@ -71,7 +93,7 @@ class IndexerTest {
         ));
 
         // act
-        List<File> files = new Indexer().getFilesInDir(file);
+        List<File> files = Indexer.getInstance().getFilesInDir(file);
 
         // assert
         assertThat(new HashSet<>(files), is(expectedFiles));

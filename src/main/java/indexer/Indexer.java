@@ -14,6 +14,11 @@ import java.io.*;
 import java.util.*;
 
 public class Indexer {
+    private static Indexer instance = new Indexer();
+    public static Indexer getInstance() {
+        return Indexer.instance;
+    }
+    private Indexer() { }
     private static class Document {
         String docNo;
         List<String> words;
@@ -83,6 +88,35 @@ public class Indexer {
 
         }
     }
+    class IndexingThread extends Thread {
+        private final List<File> queue;
+        private InvertedIndex index;
+
+        IndexingThread(List<File> queue) {
+            this.queue = queue;
+        }
+
+        @Override
+        public void run() {
+            this.index = new InvertedIndex();
+            File toProcess;
+            do {
+                synchronized (this.queue) {
+                    if (this.queue.size() > 0) {
+                        toProcess = this.queue.get(0);
+                        this.queue.remove(0);
+                    } else {
+                        toProcess = null;
+                    }
+                }
+
+                if (toProcess != null) {
+                    InvertedIndex newIndex = Indexer.getInstance().indexFile(toProcess);
+                    this.index.merge(newIndex);
+                }
+            } while (toProcess != null);
+        }
+    }
 
     public List<File> getFilesInDir(File folder) {
         if (!folder.exists() || !folder.isDirectory()) {
@@ -100,15 +134,40 @@ public class Indexer {
         return resultFiles;
     }
 
-    public InvertedIndex index(List<File> files) {
-        return new InvertedIndex();
+    public InvertedIndex index(List<File> files, int numThreads) {
+        List<IndexingThread> worker = new LinkedList<>();
+        List<File> toIndex = new LinkedList<>(files);
+        for (int i = 0; i < numThreads; i++) {
+            IndexingThread t = new IndexingThread(toIndex);
+            t.start();
+            worker.add(t);
+        }
+
+        for (Thread t : worker) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }
+
+        InvertedIndex index = null;
+        for (IndexingThread t : worker) {
+            if (index == null) {
+                index = t.index;
+            } else {
+                index.merge(t.index);
+            }
+        }
+
+        return index;
     }
 
     public InvertedIndex indexFile(File file) {
         if (!file.exists()) {
             throw new RuntimeException("File to index does not exist");
         }
-
         List<Document> documents = new LinkedList<>();
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);

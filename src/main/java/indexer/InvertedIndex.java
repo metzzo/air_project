@@ -13,6 +13,10 @@ public class InvertedIndex {
             this.documents = new HashSet<>(Arrays.asList(document));
         }
 
+        public Set<String> getDocuments() {
+            return this.documents;
+        }
+
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -52,6 +56,17 @@ public class InvertedIndex {
 
     public Map<String, IndexValue> getIndex() {
         return this.index;
+    }
+
+    public void debugPrint() {
+        for (String word : this.index.keySet()) {
+            IndexValue value = this.index.get(word);
+            System.out.print(word + ": ");
+            for (String doc : value.documents) {
+                System.out.print(doc+" ");
+            }
+            System.out.println();
+        }
     }
 
     @Override
