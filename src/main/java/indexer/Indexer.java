@@ -84,7 +84,23 @@ public class Indexer {
         }
     }
 
-    public InvertedIndex index(String file) {
+    public List<File> getFilesInDir(File folder) {
+        if (!folder.exists() || !folder.isDirectory()) {
+            throw new RuntimeException(folder.toString() + " does not exist or is a directory");
+        }
+        File[] files = Objects.requireNonNull(folder.listFiles());
+        List<File> resultFiles = new LinkedList<>();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                resultFiles.addAll(this.getFilesInDir(file));
+            } else {
+                resultFiles.add(file);
+            }
+        }
+        return resultFiles;
+    }
+
+    public InvertedIndex index(List<File> files) {
         return new InvertedIndex();
     }
 
@@ -114,13 +130,13 @@ public class Indexer {
             throw new RuntimeException(e);
         }
 
-        for (Document doc : documents) {
-            System.out.println(doc.docNo);
-            for (String word : doc.words) {
-                System.out.print(word + " ");
-            }
-            System.out.println();
-        }
+//        for (Document doc : documents) {
+//            System.out.println(doc.docNo);
+//            for (String word : doc.words) {
+//                System.out.print(word + " ");
+//            }
+//            System.out.println();
+//        }
 
         // build inverted index for file
         InvertedIndex baseIndex = new InvertedIndex();

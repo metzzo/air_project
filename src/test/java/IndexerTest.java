@@ -7,7 +7,10 @@ import java.io.File;
 import java.net.URL;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class IndexerTest {
     @Test
-    void indexSimpleFile() {
+    void indexSimpleFileWorking() {
         // arrange
         ClassLoader classLoader = getClass().getClassLoader();
         URL res = classLoader.getResource("simpletestdoc.txt");
@@ -37,7 +40,7 @@ class IndexerTest {
 
 
     @Test
-    void indexLargeFile() {
+    void indexLargeFileWorking() {
         // arrange
         ClassLoader classLoader = getClass().getClassLoader();
         URL res = classLoader.getResource("testdoc.txt");
@@ -50,6 +53,27 @@ class IndexerTest {
         assertThat(result, is(not(nullValue())));
         assertThat(result.getIndex().size(), is(greaterThan(10)));
         assertThat(result.getIndex(), hasKey("mother"));
-        assertThat(result.getIndex(), hasKey("numbers"));
+        assertThat(result.getIndex(), hasKey("number"));
+    }
+
+    @Test
+    void getFilesInDirWorking() {
+        // arrange
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL res = classLoader.getResource("testdir");
+        File file = new File(res.getFile());
+        Set<File> expectedFiles = new HashSet<>(Arrays.asList(
+            new File(file.getAbsolutePath(), "testdir2\\testdir3\\testfile0"),
+            new File(file.getAbsolutePath(), "testdir3\\hallo"),
+            new File(file.getAbsolutePath(), "testfile1"),
+            new File(file.getAbsolutePath(), "testfile2")
+        ));
+
+        // act
+        List<File> files = new Indexer().getFilesInDir(file);
+
+        // assert
+        assertThat(new HashSet<>(files), is(expectedFiles));
     }
 }
