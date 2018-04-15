@@ -1,23 +1,11 @@
 package indexer;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 
-@XmlRootElement(name = "inverted-index")
-@XmlAccessorType(XmlAccessType.NONE)
 public class InvertedIndex {
-    @XmlElement(name = "i")
     private Map<String, IndexValue> index;
-    @XmlElement(name = "mwpd")
     private Map<String, Integer> maxWordsPerDocument;
 
     public InvertedIndex() {
@@ -136,24 +124,10 @@ public class InvertedIndex {
     }
 
     public void serialize(OutputStream stream) {
-        try {
-            JAXBContext jc = JAXBContext.newInstance(InvertedIndex.class);
-            Marshaller marshaller = jc.createMarshaller();
-            //marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(this, stream);
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
+
     }
 
     public static InvertedIndex deserialize(InputStream stream) {
-        try {
-            JAXBContext jc = JAXBContext.newInstance(InvertedIndex.class);
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
-            //marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            return (InvertedIndex)unmarshaller.unmarshal(stream);
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
+        return new InvertedIndex();
     }
 }

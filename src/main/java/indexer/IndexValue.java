@@ -1,13 +1,8 @@
 package indexer;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import java.util.*;
 
-@XmlAccessorType(XmlAccessType.NONE)
 public class IndexValue {
-    @XmlElement(name = "dcs")
     private Map<String, Integer> documents = new HashMap<>();
 
     public IndexValue(Set<WordOccurence> documents) {
