@@ -25,7 +25,7 @@ public class InvertedIndex {
         }
 
         IndexValue val = this.index.get(word);
-        int count = val.getDocuments().get(wordOccurence.document);
+        int count = val.getFrequencyInDocument(wordOccurence.document);
         int currentMaxCount = this.maxWordsPerDocument.get(wordOccurence.document);
         if (count > currentMaxCount) {
             this.maxWordsPerDocument.put(wordOccurence.document, count);
@@ -42,8 +42,12 @@ public class InvertedIndex {
         }
     }
 
-    public Map<String, IndexValue> getIndex() {
-        return this.index;
+    public IndexValue findByWord(String word) {
+        return this.index.get(word);
+    }
+
+    public boolean containsWord(String word) {
+        return this.index.containsKey(word);
     }
 
     public int getMaxFrequencyOfWord(String document) {
@@ -52,6 +56,10 @@ public class InvertedIndex {
 
     public int getNumDocuments() {
         return this.maxWordsPerDocument.size();
+    }
+
+    public int getNumWords() {
+        return this.index.size();
     }
 
     public void debugPrint() {

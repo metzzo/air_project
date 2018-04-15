@@ -7,11 +7,10 @@ import preprocess.Preprocessor;
 
 import java.io.File;
 import java.net.URL;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 class IndexerTest {
     @Test
@@ -47,9 +46,9 @@ class IndexerTest {
 
         // assert
         assertThat(result, is(not(nullValue())));
-        assertThat(result.getIndex().size(), is(greaterThan(10)));
-        assertThat(result.getIndex(), hasKey("mother"));
-        assertThat(result.getIndex(), hasKey("number"));
+        assertThat(result.getNumWords(), is(greaterThan(10)));
+        assertThat(result.containsWord("mother"), is(true));
+        assertThat(result.containsWord("number"), is (true));
     }
 
     @Test
@@ -68,11 +67,11 @@ class IndexerTest {
         // assert
         result.debugPrint();
         assertThat(result, is(not(nullValue())));
-        assertThat(result.getIndex(), hasKey("mother"));
-        assertThat(result.getIndex(), hasKey("number"));
-        IndexValue val = result.getIndex().get("mother");
-        assertThat(val.getDocuments(), hasKey("LA010289-0003"));
-        assertThat(val.getDocuments(), hasKey("LA010289-0004"));
+        assertThat(result.containsWord("mother"), is(true));
+        assertThat(result.containsWord("number"), is (true));
+        IndexValue val = result.findByWord("mother");
+        assertThat(val.isInDocument("LA010289-0003"), is(true));
+        assertThat(val.isInDocument("LA010289-0004"), is(true));
     }
 
     @Test

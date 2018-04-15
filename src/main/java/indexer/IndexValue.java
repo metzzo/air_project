@@ -17,8 +17,16 @@ public class IndexValue {
         this.putWord(occurence);
     }
 
-    public Map<String, Integer> getDocuments() {
-        return this.documents;
+    public int getFrequencyInDocument(String document) {
+        return this.documents.get(document);
+    }
+
+    public boolean isInDocument(String document) {
+        return this.documents.containsKey(document);
+    }
+
+    public int getNumDocuments() {
+        return this.documents.size();
     }
 
     void putWord(WordOccurence occurence) {

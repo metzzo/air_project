@@ -91,10 +91,8 @@ class InvertedIndexTest {
         a.putWord("b", new WordOccurence("doc3", 1));
 
         // assert
-        Map<String, IndexValue> index = a.getIndex();
-
-        assertThat(index.size(), is(2));
-        assertThat(index.get("a"), is(
+        assertThat(a.getNumWords(), is(2));
+        assertThat(a.findByWord("a"), is(
                 new IndexValue(
                         new HashSet<>(
                                 Arrays.asList(
@@ -104,7 +102,7 @@ class InvertedIndexTest {
                         )
                 )
         ));
-        assertThat(index.get("b"), is(
+        assertThat(a.findByWord("b"), is(
                 new IndexValue(
                         new WordOccurence("doc3", 1)
                 )
