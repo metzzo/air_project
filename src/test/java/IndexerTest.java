@@ -1,5 +1,7 @@
+import indexer.IndexValue;
 import indexer.Indexer;
 import indexer.InvertedIndex;
+import indexer.WordOccurence;
 import org.junit.jupiter.api.Test;
 import preprocess.Preprocessor;
 
@@ -8,11 +10,8 @@ import java.net.URL;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class IndexerTest {
     @Test
@@ -24,7 +23,7 @@ class IndexerTest {
         List<String> words = Preprocessor.getInstance().preprocess("hello my name is robert");
         InvertedIndex expectedIndex = new InvertedIndex();
         for (String word : words) {
-            expectedIndex.putWord(word, new InvertedIndex.WordOccurence("LA010289-0001", 1));
+            expectedIndex.putWord(word, new WordOccurence("LA010289-0001", 1));
         }
 
         // act
@@ -71,7 +70,7 @@ class IndexerTest {
         assertThat(result, is(not(nullValue())));
         assertThat(result.getIndex(), hasKey("mother"));
         assertThat(result.getIndex(), hasKey("number"));
-        InvertedIndex.IndexValue val = result.getIndex().get("mother");
+        IndexValue val = result.getIndex().get("mother");
         assertThat(val.getDocuments(), hasKey("LA010289-0003"));
         assertThat(val.getDocuments(), hasKey("LA010289-0004"));
     }

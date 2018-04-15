@@ -1,16 +1,14 @@
+import indexer.IndexValue;
 import indexer.InvertedIndex;
+import indexer.WordOccurence;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.equalTo;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 
 class InvertedIndexTest {
@@ -18,19 +16,19 @@ class InvertedIndexTest {
     void isMergeWorking() {
         // arrange
         InvertedIndex a = new InvertedIndex();
-        a.putWord("a", new InvertedIndex.WordOccurence("doc1", 1));
-        a.putWord("b", new InvertedIndex.WordOccurence("doc2", 1));
+        a.putWord("a", new WordOccurence("doc1", 1));
+        a.putWord("b", new WordOccurence("doc2", 1));
 
         InvertedIndex b = new InvertedIndex();
-        b.putWord("b", new InvertedIndex.WordOccurence("doc2", 1));
-        b.putWord("b", new InvertedIndex.WordOccurence("doc3", 1));
-        b.putWord("c", new InvertedIndex.WordOccurence("doc4", 1));
+        b.putWord("b", new WordOccurence("doc2", 1));
+        b.putWord("b", new WordOccurence("doc3", 1));
+        b.putWord("c", new WordOccurence("doc4", 1));
 
         InvertedIndex expected = new InvertedIndex();
-        expected.putWord("a", new InvertedIndex.WordOccurence("doc1", 1));
-        expected.putWord("b", new InvertedIndex.WordOccurence("doc2", 2));
-        expected.putWord("b", new InvertedIndex.WordOccurence("doc3", 1));
-        expected.putWord("c", new InvertedIndex.WordOccurence("doc4", 1));
+        expected.putWord("a", new WordOccurence("doc1", 1));
+        expected.putWord("b", new WordOccurence("doc2", 2));
+        expected.putWord("b", new WordOccurence("doc3", 1));
+        expected.putWord("c", new WordOccurence("doc4", 1));
 
         // act
         a.merge(b);
@@ -58,13 +56,13 @@ class InvertedIndexTest {
     void isMergeSameWorking() {
         // arrange
         InvertedIndex a = new InvertedIndex();
-        a.putWord("a", new InvertedIndex.WordOccurence("doc1", 1));
+        a.putWord("a", new WordOccurence("doc1", 1));
 
         InvertedIndex b = new InvertedIndex();
-        b.putWord("a", new InvertedIndex.WordOccurence("doc1", 1));
+        b.putWord("a", new WordOccurence("doc1", 1));
 
         InvertedIndex expected = new InvertedIndex();
-        expected.putWord("a", new InvertedIndex.WordOccurence("doc1", 2));
+        expected.putWord("a", new WordOccurence("doc1", 2));
 
         // act
         a.merge(b);
@@ -79,28 +77,28 @@ class InvertedIndexTest {
         InvertedIndex a = new InvertedIndex();
 
         // act
-        a.putWord("a", new InvertedIndex.WordOccurence("doc1", 1));
-        a.putWord("a", new InvertedIndex.WordOccurence("doc2", 1));
-        a.putWord("a", new InvertedIndex.WordOccurence("doc2", 1));
-        a.putWord("b", new InvertedIndex.WordOccurence("doc3", 1));
+        a.putWord("a", new WordOccurence("doc1", 1));
+        a.putWord("a", new WordOccurence("doc2", 1));
+        a.putWord("a", new WordOccurence("doc2", 1));
+        a.putWord("b", new WordOccurence("doc3", 1));
 
         // assert
-        Map<String, InvertedIndex.IndexValue> index = a.getIndex();
+        Map<String, IndexValue> index = a.getIndex();
 
         assertThat(index.size(), is(2));
         assertThat(index.get("a"), is(
-                new InvertedIndex.IndexValue(
+                new IndexValue(
                         new HashSet<>(
                                 Arrays.asList(
-                                        new InvertedIndex.WordOccurence("doc1", 1),
-                                        new InvertedIndex.WordOccurence("doc2", 2)
+                                        new WordOccurence("doc1", 1),
+                                        new WordOccurence("doc2", 2)
                                 )
                         )
                 )
         ));
         assertThat(index.get("b"), is(
-                new InvertedIndex.IndexValue(
-                        new InvertedIndex.WordOccurence("doc3", 1)
+                new IndexValue(
+                        new WordOccurence("doc3", 1)
                 )
         ));
     }

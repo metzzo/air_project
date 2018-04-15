@@ -156,7 +156,7 @@ public class Indexer {
         for (Document doc : documents) {
             InvertedIndex index = new InvertedIndex();
             for (String word : doc.words) {
-                index.putWord(word, new InvertedIndex.WordOccurence(doc.docNo, 1));
+                index.putWord(word, new WordOccurence(doc.docNo, 1));
             }
 
             baseIndex.merge(index);
