@@ -49,7 +49,7 @@ public class InvertedIndex {
         return this.index.containsKey(word);
     }
 
-    public int getMaxFrequencyOfWord(String document) {
+    public int getMaxFrequencyInDocument(String document) {
         return this.maxWordsPerDocument.get(document);
     }
 
