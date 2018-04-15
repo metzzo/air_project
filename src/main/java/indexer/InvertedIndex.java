@@ -5,12 +5,16 @@ import java.util.*;
 public class InvertedIndex {
 
     private Map<String, IndexValue> index;
+    private Set<String> documents;
 
     public InvertedIndex() {
         this.index = new HashMap<>();
+        this.documents = new HashSet<>();
     }
 
     public void putWord(String word, WordOccurence wordOccurence) {
+        this.documents.add(wordOccurence.document);
+
         if (!this.index.containsKey(word)) {
             this.index.put(word, new IndexValue(wordOccurence));
         } else {
@@ -31,6 +35,10 @@ public class InvertedIndex {
 
     public Map<String, IndexValue> getIndex() {
         return this.index;
+    }
+
+    public int getNumDocuments() {
+        return this.documents.size();
     }
 
     public void debugPrint() {

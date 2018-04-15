@@ -35,6 +35,7 @@ class InvertedIndexTest {
 
         // assert
         assertThat(a, is(expected));
+        assertThat(a.getNumDocuments(), is(4));
 
     }
 
@@ -50,6 +51,7 @@ class InvertedIndexTest {
 
         // assert
         assertThat(a, is(expected));
+        assertThat(a.getNumDocuments(), is(0));
     }
 
     @Test
@@ -69,6 +71,7 @@ class InvertedIndexTest {
 
         // assert
         assertThat(a, is(expected));
+        assertThat(a.getNumDocuments(), is(1));
     }
 
     @Test
@@ -101,5 +104,6 @@ class InvertedIndexTest {
                         new WordOccurence("doc3", 1)
                 )
         ));
+        assertThat(a.getNumDocuments(), is(3));
     }
 }
