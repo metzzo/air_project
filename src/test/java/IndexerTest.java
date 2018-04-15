@@ -7,10 +7,7 @@ import java.io.File;
 import java.net.URL;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,7 +24,7 @@ class IndexerTest {
         List<String> words = Preprocessor.getInstance().preprocess("hello my name is robert");
         InvertedIndex expectedIndex = new InvertedIndex();
         for (String word : words) {
-            expectedIndex.putWord(word, "LA010289-0001");
+            expectedIndex.putWord(word, new InvertedIndex.WordOccurence("LA010289-0001", 1));
         }
 
         // act
@@ -75,7 +72,8 @@ class IndexerTest {
         assertThat(result.getIndex(), hasKey("mother"));
         assertThat(result.getIndex(), hasKey("number"));
         InvertedIndex.IndexValue val = result.getIndex().get("mother");
-        assertThat(val.getDocuments(), is((Set<String>)(new HashSet<>(Arrays.asList("LA010289-0003", "LA010289-0004")))));
+        assertThat(val.getDocuments(), hasKey("LA010289-0003"));
+        assertThat(val.getDocuments(), hasKey("LA010289-0004"));
     }
 
     @Test

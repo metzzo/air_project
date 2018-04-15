@@ -3,18 +3,62 @@ package indexer;
 import java.util.*;
 
 public class InvertedIndex {
+    public static class WordOccurence {
+        String document;
+        int count;
+
+        public WordOccurence(String doc) {
+            this(doc, 1);
+        }
+
+        public WordOccurence(String doc, int count) {
+            this.document = doc;
+            this.count = count;
+        }
+
+        @Override
+        public String toString() {
+            return document + "(" + count + ")";
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof WordOccurence) || getClass() != obj.getClass()) {
+                return false;
+            }
+            WordOccurence other = (WordOccurence)obj;
+
+            return this.document.equals(other.document);
+        }
+    }
+
     public static class IndexValue {
-        Set<String> documents;
+        Map<String, Integer> documents = new HashMap<>();
 
-        public IndexValue(Set<String> documents) {
-            this.documents = documents;
-        }
-        public IndexValue(String document) {
-            this.documents = new HashSet<>(Arrays.asList(document));
+        public IndexValue(Set<WordOccurence> documents) {
+            for (WordOccurence occurence : documents) {
+                this.putWord(occurence);
+            }
         }
 
-        public Set<String> getDocuments() {
+        public IndexValue(WordOccurence occurence) {
+            this.putWord(occurence);
+        }
+
+        public Map<String, Integer> getDocuments() {
             return this.documents;
+        }
+
+        private void putWord(WordOccurence occurence) {
+            if (this.documents.containsKey(occurence.document)) {
+                int oldCount = this.documents.get(occurence.document);
+                this.documents.put(occurence.document, oldCount + occurence.count);
+            } else {
+                this.documents.put(occurence.document, occurence.count);
+            }
         }
 
         @Override
@@ -26,7 +70,7 @@ public class InvertedIndex {
                 return false;
             }
             IndexValue other = (IndexValue)obj;
-            return other.documents.containsAll(this.documents) && this.documents.containsAll(other.documents);
+            return other.documents.equals(this.documents);
         }
     }
 
@@ -36,20 +80,21 @@ public class InvertedIndex {
         this.index = new HashMap<>();
     }
 
-    public void putWord(String word, String document) {
+    public void putWord(String word, WordOccurence wordOccurence) {
         if (!this.index.containsKey(word)) {
-            this.index.put(word, new IndexValue(document));
+            this.index.put(word, new IndexValue(wordOccurence));
         } else {
             IndexValue val = this.index.get(word);
-            val.documents.add(document);
+            val.putWord(wordOccurence);
         }
     }
 
     public void merge(InvertedIndex other) {
         for (String word : other.index.keySet()) {
             IndexValue value = other.index.get(word);
-            for (String doc : value.documents) {
-                this.putWord(word, doc);
+            for (String document : value.documents.keySet()) {
+                int count = value.documents.get(document);
+                this.putWord(word, new WordOccurence(document, count));
             }
         }
     }
@@ -62,8 +107,9 @@ public class InvertedIndex {
         for (String word : this.index.keySet()) {
             IndexValue value = this.index.get(word);
             System.out.print(word + ": ");
-            for (String doc : value.documents) {
-                System.out.print(doc+";");
+            for (String document : value.documents.keySet()) {
+                int count = value.documents.get(document);
+                System.out.print(document + "(" + count + ");");
             }
             System.out.println();
         }

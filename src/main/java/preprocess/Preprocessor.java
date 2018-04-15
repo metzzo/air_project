@@ -40,6 +40,8 @@ public class Preprocessor {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+            throw new RuntimeException("Could not load stopwords");
         }
     }
 
