@@ -204,12 +204,12 @@ public class Indexer {
         InvertedIndex baseIndex = new InvertedIndex();
         for (RawDocument doc : documents) {
             // register documents to repository
-            DocumentRepository.getInstance().register(doc.docNo, doc.words.size());
+            DocumentInfo info =DocumentRepository.getInstance().register(doc.docNo, doc.words.size());
 
             // make index
             InvertedIndex index = new InvertedIndex();
             for (String word : doc.words) {
-                index.putWord(word, new WordOccurence(doc.docNo, 1));
+                index.putWord(word, new WordOccurence(info.getId(), 1));
             }
 
             baseIndex.merge(index);

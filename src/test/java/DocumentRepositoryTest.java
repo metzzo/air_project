@@ -18,9 +18,9 @@ class DocumentRepositoryTest {
         DocumentRepository.getInstance().register("doc2", 5);
         DocumentRepository.getInstance().register("doc3", 1);
 
-        assertThat(DocumentRepository.getInstance().getDocumentSize("doc1"), is(10));
-        assertThat(DocumentRepository.getInstance().getDocumentSize("doc2"), is(5));
-        assertThat(DocumentRepository.getInstance().getDocumentSize("doc3"), is(1));
+        assertThat(DocumentRepository.getInstance().getDocumentByName("doc1").getSize(), is(10));
+        assertThat(DocumentRepository.getInstance().getDocumentByName("doc2").getSize(), is(5));
+        assertThat(DocumentRepository.getInstance().getDocumentByName("doc3").getSize(), is(1));
     }
 
     @Test

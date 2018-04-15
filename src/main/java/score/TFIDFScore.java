@@ -5,7 +5,7 @@ import indexer.InvertedIndex;
 import java.util.List;
 
 public class TFIDFScore implements Scorer {
-    public double scoreDocumentByQuery(InvertedIndex index, String document, List<String> query) {
+    public double scoreDocumentByQuery(InvertedIndex index, int document, List<String> query) {
         double score = 0.0;
         for (String word : query) {
             // check if word is in index

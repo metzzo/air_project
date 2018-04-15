@@ -1,11 +1,13 @@
 package search;
 
+import indexer.DocumentRepository;
+
 public class SearchResult implements Comparable<SearchResult> {
-    private String document;
+    private int document;
     private double score;
     private int rank;
 
-    public SearchResult(String document, double score) {
+    public SearchResult(int document, double score) {
         this.document = document;
         this.score = score;
     }
@@ -14,8 +16,8 @@ public class SearchResult implements Comparable<SearchResult> {
         return score;
     }
 
-    public String getDocument() {
-        return document;
+    public String getDocumentName() {
+        return DocumentRepository.getInstance().getDocumentById(document).getName();
     }
 
     public int getRank() {

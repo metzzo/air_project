@@ -1,3 +1,5 @@
+import indexer.DocumentInfo;
+import indexer.DocumentRepository;
 import indexer.InvertedIndex;
 import indexer.WordOccurence;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,23 +16,32 @@ import static org.hamcrest.MatcherAssert.assertThat;
 class TFIDFScoreTest {
     private InvertedIndex index;
     private Scorer scorer;
+    private DocumentInfo doc1;
+    private DocumentInfo doc2;
+    private DocumentInfo doc3;
 
     @BeforeEach
     void setUp() {
+        DocumentRepository.getInstance().clear();
+
+        this.doc1 = DocumentRepository.getInstance().register("doc1", 7);
+        this.doc2 = DocumentRepository.getInstance().register("doc2", 10);
+        this.doc3 = DocumentRepository.getInstance().register("doc3", 7);
+
         this.index = new InvertedIndex();
-        this.index.putWord("a", new WordOccurence("doc1", 4));
-        this.index.putWord("b", new WordOccurence("doc1", 2));
-        this.index.putWord("c", new WordOccurence("doc1", 1));
+        this.index.putWord("a", new WordOccurence(doc1.getId(), 4));
+        this.index.putWord("b", new WordOccurence(doc1.getId(), 2));
+        this.index.putWord("c", new WordOccurence(doc1.getId(), 1));
 
 
-        this.index.putWord("d", new WordOccurence("doc2", 8));
-        this.index.putWord("e", new WordOccurence("doc2", 1));
-        this.index.putWord("f", new WordOccurence("doc2", 1));
+        this.index.putWord("d", new WordOccurence(doc2.getId(), 8));
+        this.index.putWord("e", new WordOccurence(doc2.getId(), 1));
+        this.index.putWord("f", new WordOccurence(doc2.getId(), 1));
 
 
-        this.index.putWord("a", new WordOccurence("doc3", 1));
-        this.index.putWord("b", new WordOccurence("doc3", 2));
-        this.index.putWord("c", new WordOccurence("doc3", 4));
+        this.index.putWord("a", new WordOccurence(doc3.getId(), 1));
+        this.index.putWord("b", new WordOccurence(doc3.getId(), 2));
+        this.index.putWord("c", new WordOccurence(doc3.getId(), 4));
 
         this.scorer = new TFIDFScore();
     }
@@ -41,7 +52,7 @@ class TFIDFScoreTest {
         List<String> query = Arrays.asList("x", "y", "z");
 
         // act
-        double score = scorer.scoreDocumentByQuery(this.index, "doc1", query);
+        double score = scorer.scoreDocumentByQuery(this.index, this.doc1.getId(), query);
 
         // assert
         assertThat(score, is(0.0));
@@ -53,7 +64,7 @@ class TFIDFScoreTest {
         List<String> query = Arrays.asList("d", "e", "f");
 
         // act
-        double score = scorer.scoreDocumentByQuery(this.index, "doc2", query);
+        double score = scorer.scoreDocumentByQuery(this.index, this.doc2.getId(), query);
 
         // assert
         assertThat(score, is(1.373265360835137));
@@ -65,7 +76,7 @@ class TFIDFScoreTest {
         List<String> query = Arrays.asList("a", "x", "y");
 
         // act
-        double score = scorer.scoreDocumentByQuery(this.index, "doc1", query);
+        double score = scorer.scoreDocumentByQuery(this.index, this.doc1.getId(), query);
 
         // assert
         assertThat(score, is(0.4054651081081644));

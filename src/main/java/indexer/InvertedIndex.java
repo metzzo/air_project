@@ -6,7 +6,7 @@ import java.util.*;
 
 public class InvertedIndex {
     private Map<String, IndexValue> index;
-    private Map<String, Integer> maxWordsPerDocument;
+    private Map<Integer, Integer> maxWordsPerDocument;
 
     public InvertedIndex() {
         this.index = new HashMap<>();
@@ -36,8 +36,8 @@ public class InvertedIndex {
     public void merge(InvertedIndex other) {
         for (String word : other.index.keySet()) {
             IndexValue value = other.index.get(word);
-            Map<String, Integer> documents = value.getFrequenciesForDocuments();
-            for (String document : documents.keySet()) {
+            Map<Integer, Integer> documents = value.getFrequenciesForDocuments();
+            for (Integer document : documents.keySet()) {
                 int count = documents.get(document);
                 this.putWord(word, new WordOccurence(document, count));
             }
@@ -52,7 +52,7 @@ public class InvertedIndex {
         return this.index.containsKey(word);
     }
 
-    public int getMaxFrequencyInDocument(String document) {
+    public int getMaxFrequencyInDocument(int document) {
         return this.maxWordsPerDocument.get(document);
     }
 
@@ -67,9 +67,9 @@ public class InvertedIndex {
     public void debugPrint() {
         for (String word : this.index.keySet()) {
             IndexValue value = this.index.get(word);
-            Map<String, Integer> documents = value.getFrequenciesForDocuments();
+            Map<Integer, Integer> documents = value.getFrequenciesForDocuments();
             System.out.print(word + ": ");
-            for (String document : documents.keySet()) {
+            for (Integer document : documents.keySet()) {
                 int count = documents.get(document);
                 System.out.print(document + "(" + count + ");");
             }
@@ -104,7 +104,7 @@ public class InvertedIndex {
             }
         }
 
-        for (String doc : this.maxWordsPerDocument.keySet()) {
+        for (Integer doc : this.maxWordsPerDocument.keySet()) {
             int myCount = this.maxWordsPerDocument.get(doc);
             int otherCount = other.maxWordsPerDocument.get(doc);
             if (myCount != otherCount) {
@@ -112,7 +112,7 @@ public class InvertedIndex {
             }
         }
 
-        for (String doc : other.maxWordsPerDocument.keySet()) {
+        for (Integer doc : other.maxWordsPerDocument.keySet()) {
             int myCount = this.maxWordsPerDocument.get(doc);
             int otherCount = other.maxWordsPerDocument.get(doc);
             if (myCount != otherCount) {

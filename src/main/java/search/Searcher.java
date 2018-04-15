@@ -20,7 +20,7 @@ public class Searcher {
 
     public List<SearchResult> search(InvertedIndex index, List<String> query, Scorer scorer, int maxNum) {
         // get candidate documents by chosing documents that contain at least 1 term of the query
-        Set<String> contenders = new HashSet<>();
+        Set<Integer> contenders = new HashSet<>();
         for (String word : query) {
             IndexValue val = index.findByWord(word);
             contenders.addAll(val.getAllDocuments());
@@ -29,7 +29,7 @@ public class Searcher {
         // TODO: use cosine similarity
 
         List<SearchResult> searchResults = new LinkedList<>();
-        for (String contenderDocument : contenders) {
+        for (Integer contenderDocument : contenders) {
             double score = scorer.scoreDocumentByQuery(index, contenderDocument, query);
             SearchResult result = new SearchResult(contenderDocument, score);
             searchResults.add(result);

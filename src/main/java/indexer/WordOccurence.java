@@ -1,14 +1,14 @@
 package indexer;
 
 public class WordOccurence {
-    String document;
+    int document;
     int count;
 
-    public WordOccurence(String doc) {
+    public WordOccurence(int doc) {
         this(doc, 1);
     }
 
-    public WordOccurence(String doc, int count) {
+    public WordOccurence(int doc, int count) {
         this.document = doc;
         this.count = count;
     }
@@ -28,6 +28,6 @@ public class WordOccurence {
         }
         WordOccurence other = (WordOccurence)obj;
 
-        return this.document.equals(other.document);
+        return this.document == other.document;
     }
 }

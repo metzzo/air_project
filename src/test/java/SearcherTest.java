@@ -1,9 +1,11 @@
+import indexer.DocumentInfo;
 import indexer.DocumentRepository;
 import indexer.InvertedIndex;
 import indexer.WordOccurence;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import score.Scorer;
-import score.TFIDFScore;
+
 import search.SearchResult;
 import search.Searcher;
 
@@ -14,39 +16,41 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 class SearcherTest {
+    @BeforeEach
+    void setUp() {
+        DocumentRepository.getInstance().clear();
+    }
+
     @Test
     void simpleSearchWorking() {
         // arrange
-        DocumentRepository.getInstance().clear();
+
+        DocumentInfo doc1 = DocumentRepository.getInstance().register("doc1", 0);
+        DocumentInfo doc2 = DocumentRepository.getInstance().register("doc2", 0);
+        DocumentInfo doc3 = DocumentRepository.getInstance().register("doc3", 0);
 
         InvertedIndex index = new InvertedIndex();
-        index.putWord("a", new WordOccurence("doc1", 4));
-        index.putWord("b", new WordOccurence("doc1", 2));
-        index.putWord("c", new WordOccurence("doc1", 1));
+        index.putWord("a", new WordOccurence(doc1.getId(), 4));
+        index.putWord("b", new WordOccurence(doc1.getId(), 2));
+        index.putWord("c", new WordOccurence(doc1.getId(), 1));
 
 
-        index.putWord("a", new WordOccurence("doc2", 8));
-        index.putWord("b", new WordOccurence("doc2", 1));
-        index.putWord("c", new WordOccurence("doc2", 1));
+        index.putWord("a", new WordOccurence(doc2.getId(), 8));
+        index.putWord("b", new WordOccurence(doc2.getId(), 1));
+        index.putWord("c", new WordOccurence(doc2.getId(), 1));
 
 
-        index.putWord("a", new WordOccurence("doc3", 1));
-        index.putWord("b", new WordOccurence("doc3", 2));
-        index.putWord("c", new WordOccurence("doc3", 4));
-
-
-        DocumentRepository.getInstance().register("doc1", 3);
-        DocumentRepository.getInstance().register("doc2", 3);
-        DocumentRepository.getInstance().register("doc3", 3);
+        index.putWord("a", new WordOccurence(doc3.getId(), 1));
+        index.putWord("b", new WordOccurence(doc3.getId(), 2));
+        index.putWord("c", new WordOccurence(doc3.getId(), 4));
 
         Scorer scorer = (index1, document, query) -> {
-            switch (document) {
-                case "doc1":
-                    return 3;
-                case "doc2":
-                    return 2;
-                default:
-                    return 1;
+            if (document == doc1.getId()) {
+                return 3;
+            } else if (document == doc2.getId()) {
+                return 2;
+            } else {
+                return 1;
             }
         };
         List<String> query = Arrays.asList("a", "b", "c");
@@ -56,10 +60,10 @@ class SearcherTest {
 
         // assert
         assertThat(result.size(), is(2));
-        assertThat(result.get(0).getDocument(), is("doc1"));
+        assertThat(result.get(0).getDocumentName(), is("doc1"));
         assertThat(result.get(0).getScore(), is(3.0));
         assertThat(result.get(0).getRank(), is(0));
-        assertThat(result.get(1).getDocument(), is("doc2"));
+        assertThat(result.get(1).getDocumentName(), is("doc2"));
         assertThat(result.get(1).getScore(), is(2.0));
         assertThat(result.get(1).getRank(), is(1));
     }

@@ -19,13 +19,15 @@ class IndexerTest {
     @Test
     void indexSimpleFileWorking() {
         // arrange
+        DocumentInfo info = DocumentRepository.getInstance().register("LA010289-0001", 0);
+
         ClassLoader classLoader = getClass().getClassLoader();
         URL res = classLoader.getResource("simpletestdoc.txt");
         File file = new File(res.getFile());
         List<String> words = Preprocessor.getInstance().preprocess("hello my name is robert");
         InvertedIndex expectedIndex = new InvertedIndex();
         for (String word : words) {
-            expectedIndex.putWord(word, new WordOccurence("LA010289-0001", 1));
+            expectedIndex.putWord(word, new WordOccurence(info.getId(), 1));
         }
 
         // act
@@ -34,13 +36,15 @@ class IndexerTest {
         // assert
         assertThat(result, is(not(nullValue())));
         assertThat(result, is(expectedIndex));
-        assertThat(DocumentRepository.getInstance().getDocumentSize("LA010289-0001"), is(4));
+        assertThat(info.getSize(), is(4));
     }
 
 
     @Test
     void indexLargeFileWorking() {
         // arrange
+        DocumentInfo info = DocumentRepository.getInstance().register("LA010289-0001", 0);
+
         ClassLoader classLoader = getClass().getClassLoader();
         URL res = classLoader.getResource("testdoc.txt");
         File file = new File(res.getFile());
@@ -53,7 +57,7 @@ class IndexerTest {
         assertThat(result.getNumWords(), is(greaterThan(10)));
         assertThat(result.containsWord("mother"), is(true));
         assertThat(result.containsWord("number"), is (true));
-        assertThat(DocumentRepository.getInstance().getDocumentSize("LA010289-0001"), is(greaterThan(100)));
+        assertThat(info.getSize(), is(greaterThan(100)));
     }
 
     @Test
@@ -75,9 +79,9 @@ class IndexerTest {
         assertThat(result.containsWord("mother"), is(true));
         assertThat(result.containsWord("number"), is (true));
         IndexValue val = result.findByWord("mother");
-        assertThat(val.isInDocument("LA010289-0003"), is(true));
-        assertThat(val.isInDocument("LA010289-0004"), is(true));
-        assertThat(DocumentRepository.getInstance().getDocumentSize("LA010289-0001"), is(greaterThan(100)));
+        assertThat(val.isInDocument(DocumentRepository.getInstance().getDocumentByName("LA010289-0003").getId()), is(true));
+        assertThat(val.isInDocument(DocumentRepository.getInstance().getDocumentByName("LA010289-0004").getId()), is(true));
+        assertThat(DocumentRepository.getInstance().getDocumentByName("LA010289-0001").getSize(), is(greaterThan(100)));
     }
 
     @Test

@@ -3,7 +3,7 @@ package indexer;
 import java.util.*;
 
 public class IndexValue {
-    private Map<String, Integer> documents = new HashMap<>();
+    private Map<Integer, Integer> documents = new HashMap<>();
 
     public IndexValue(Set<WordOccurence> documents) {
         for (WordOccurence occurence : documents) {
@@ -19,11 +19,11 @@ public class IndexValue {
         this.putWord(occurence);
     }
 
-    public int getFrequencyInDocument(String document) {
+    public int getFrequencyInDocument(int document) {
         return this.documents.get(document);
     }
 
-    public boolean isInDocument(String document) {
+    public boolean isInDocument(int document) {
         return this.documents.containsKey(document);
     }
 
@@ -52,11 +52,11 @@ public class IndexValue {
         return other.documents.equals(this.documents);
     }
 
-    public Set<String> getAllDocuments() {
+    public Set<Integer> getAllDocuments() {
         return this.documents.keySet();
     }
 
-    public Map<String, Integer> getFrequenciesForDocuments() {
+    public Map<Integer, Integer> getFrequenciesForDocuments() {
         return this.documents;
     }
 }

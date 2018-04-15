@@ -13,7 +13,7 @@ public class ScoreUtility {
     private ScoreUtility() {
     }
 
-    public double tf(InvertedIndex index, String document, String word) {
+    public double tf(InvertedIndex index, int document, String word) {
         IndexValue indexValue = index.findByWord(word);
         double frequency = (double) indexValue.getFrequencyInDocument(document);
         double maxFrequency = (double) index.getMaxFrequencyInDocument(document);
