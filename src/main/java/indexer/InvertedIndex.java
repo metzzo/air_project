@@ -5,21 +5,30 @@ import java.util.*;
 public class InvertedIndex {
 
     private Map<String, IndexValue> index;
-    private Set<String> documents;
+    private Map<String, Integer> maxWordsPerDocument;
 
     public InvertedIndex() {
         this.index = new HashMap<>();
-        this.documents = new HashSet<>();
+        this.maxWordsPerDocument = new HashMap<>();
     }
 
     public void putWord(String word, WordOccurence wordOccurence) {
-        this.documents.add(wordOccurence.document);
-
         if (!this.index.containsKey(word)) {
             this.index.put(word, new IndexValue(wordOccurence));
         } else {
             IndexValue val = this.index.get(word);
             val.putWord(wordOccurence);
+        }
+
+        if (!this.maxWordsPerDocument.containsKey(wordOccurence.document)) {
+            this.maxWordsPerDocument.put(wordOccurence.document, 0);
+        }
+
+        IndexValue val = this.index.get(word);
+        int count = val.getDocuments().get(wordOccurence.document);
+        int currentMaxCount = this.maxWordsPerDocument.get(wordOccurence.document);
+        if (count > currentMaxCount) {
+            this.maxWordsPerDocument.put(wordOccurence.document, count);
         }
     }
 
@@ -37,8 +46,12 @@ public class InvertedIndex {
         return this.index;
     }
 
+    public int getMaxFrequencyOfWord(String document) {
+        return this.maxWordsPerDocument.get(document);
+    }
+
     public int getNumDocuments() {
-        return this.documents.size();
+        return this.maxWordsPerDocument.size();
     }
 
     public void debugPrint() {

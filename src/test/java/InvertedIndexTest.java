@@ -36,6 +36,10 @@ class InvertedIndexTest {
         // assert
         assertThat(a, is(expected));
         assertThat(a.getNumDocuments(), is(4));
+        assertThat(a.getMaxFrequencyOfWord("doc1"), is(1));
+        assertThat(a.getMaxFrequencyOfWord("doc2"), is(2));
+        assertThat(a.getMaxFrequencyOfWord("doc3"), is(1));
+        assertThat(a.getMaxFrequencyOfWord("doc4"), is(1));
 
     }
 
@@ -72,6 +76,7 @@ class InvertedIndexTest {
         // assert
         assertThat(a, is(expected));
         assertThat(a.getNumDocuments(), is(1));
+        assertThat(a.getMaxFrequencyOfWord("doc1"), is(2));
     }
 
     @Test
@@ -105,5 +110,26 @@ class InvertedIndexTest {
                 )
         ));
         assertThat(a.getNumDocuments(), is(3));
+        assertThat(a.getMaxFrequencyOfWord("doc1"), is(1));
+        assertThat(a.getMaxFrequencyOfWord("doc2"), is(2));
+        assertThat(a.getMaxFrequencyOfWord("doc3"), is(1));
+    }
+
+    @Test
+    void isMaxFrequencyOfWordWorking() {
+        // arrange
+        InvertedIndex a = new InvertedIndex();
+
+        // act
+        a.putWord("a", new WordOccurence("doc1", 1));
+        a.putWord("a", new WordOccurence("doc1", 2));
+        a.putWord("a", new WordOccurence("doc1", 3));
+        a.putWord("a", new WordOccurence("doc1", 4));
+        a.putWord("a", new WordOccurence("doc2", 1));
+
+        // assert
+        assertThat(a.getMaxFrequencyOfWord("doc1"), is(1 + 2 + 3 + 4));
+        assertThat(a.getMaxFrequencyOfWord("doc2"), is(1));
+
     }
 }
