@@ -44,12 +44,6 @@ class InvertedIndexTest {
 
         // assert
         assertThat(a, is(expected));
-        assertThat(a.getNumDocuments(), is(4));
-        assertThat(a.getMaxFrequencyInDocument(doc1.getId()), is(1));
-        assertThat(a.getMaxFrequencyInDocument(doc2.getId()), is(2));
-        assertThat(a.getMaxFrequencyInDocument(doc3.getId()), is(1));
-        assertThat(a.getMaxFrequencyInDocument(doc4.getId()), is(1));
-
     }
 
     @Test
@@ -64,7 +58,6 @@ class InvertedIndexTest {
 
         // assert
         assertThat(a, is(expected));
-        assertThat(a.getNumDocuments(), is(0));
     }
 
     @Test
@@ -86,8 +79,6 @@ class InvertedIndexTest {
 
         // assert
         assertThat(a, is(expected));
-        assertThat(a.getNumDocuments(), is(1));
-        assertThat(a.getMaxFrequencyInDocument(doc1.getId()), is(2));
     }
 
     @Test
@@ -121,30 +112,6 @@ class InvertedIndexTest {
                         new WordOccurence(doc3.getId(), 1)
                 )
         ));
-        assertThat(a.getNumDocuments(), is(3));
-        assertThat(a.getMaxFrequencyInDocument(doc1.getId()), is(1));
-        assertThat(a.getMaxFrequencyInDocument(doc2.getId()), is(2));
-        assertThat(a.getMaxFrequencyInDocument(doc3.getId()), is(1));
-    }
-
-    @Test
-    void isMaxFrequencyOfWordWorking() {
-        // arrange
-        DocumentInfo doc1 = DocumentRepository.getInstance().register("doc1", 0);
-        DocumentInfo doc2 = DocumentRepository.getInstance().register("doc2", 0);
-        InvertedIndex a = new InvertedIndex();
-
-        // act
-        a.putWord("a", new WordOccurence(doc1.getId(), 1));
-        a.putWord("a", new WordOccurence(doc1.getId(), 2));
-        a.putWord("a", new WordOccurence(doc1.getId(), 3));
-        a.putWord("a", new WordOccurence(doc1.getId(), 4));
-        a.putWord("a", new WordOccurence(doc2.getId(), 1));
-
-        // assert
-        assertThat(a.getMaxFrequencyInDocument(doc1.getId()), is(1 + 2 + 3 + 4));
-        assertThat(a.getMaxFrequencyInDocument(doc2.getId()), is(1));
-
     }
 
     @Test

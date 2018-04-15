@@ -1,36 +1,25 @@
 package indexer;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
 
 public class InvertedIndex {
     private Map<String, IndexValue> index;
-    private Map<Integer, Integer> maxWordsPerDocument;
 
     public InvertedIndex() {
         this.index = new HashMap<>();
-        this.maxWordsPerDocument = new HashMap<>();
     }
 
-    public void putWord(String word, WordOccurence wordOccurence) {
+    public IndexValue putWord(String word, WordOccurence wordOccurence) {
+        IndexValue val;
         if (!this.index.containsKey(word)) {
-            this.index.put(word, new IndexValue(wordOccurence));
+            val = new IndexValue(wordOccurence);
+            this.index.put(word, val);
         } else {
-            IndexValue val = this.index.get(word);
+            val = this.index.get(word);
             val.putWord(wordOccurence);
         }
-
-        if (!this.maxWordsPerDocument.containsKey(wordOccurence.document)) {
-            this.maxWordsPerDocument.put(wordOccurence.document, 0);
-        }
-
-        IndexValue val = this.index.get(word);
-        int count = val.getFrequencyInDocument(wordOccurence.document);
-        int currentMaxCount = this.maxWordsPerDocument.get(wordOccurence.document);
-        if (count > currentMaxCount) {
-            this.maxWordsPerDocument.put(wordOccurence.document, count);
-        }
+        return val;
     }
 
     public void merge(InvertedIndex other) {
@@ -50,14 +39,6 @@ public class InvertedIndex {
 
     public boolean containsWord(String word) {
         return this.index.containsKey(word);
-    }
-
-    public int getMaxFrequencyInDocument(int document) {
-        return this.maxWordsPerDocument.get(document);
-    }
-
-    public int getNumDocuments() {
-        return this.maxWordsPerDocument.size();
     }
 
     public int getNumWords() {
@@ -104,30 +85,49 @@ public class InvertedIndex {
             }
         }
 
-        for (Integer doc : this.maxWordsPerDocument.keySet()) {
-            int myCount = this.maxWordsPerDocument.get(doc);
-            int otherCount = other.maxWordsPerDocument.get(doc);
-            if (myCount != otherCount) {
-                return false;
-            }
-        }
-
-        for (Integer doc : other.maxWordsPerDocument.keySet()) {
-            int myCount = this.maxWordsPerDocument.get(doc);
-            int otherCount = other.maxWordsPerDocument.get(doc);
-            if (myCount != otherCount) {
-                return false;
-            }
-        }
-
         return true;
     }
 
     public void serialize(OutputStream stream) {
+        DataOutputStream dos = new DataOutputStream(stream);
+        try {
+            dos.writeInt(42);
+            dos.writeInt(this.index.size());
+            for (String word : this.index.keySet()) {
+                dos.writeUTF(word);
 
+                IndexValue val = this.index.get(word);
+                val.serialize(dos);
+            }
+            dos.writeInt(42);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static InvertedIndex deserialize(InputStream stream) {
-        return new InvertedIndex();
+        DataInputStream dis = new DataInputStream(stream);
+        try {
+            if (dis.readInt() != 42) {
+                throw new RuntimeException("Unexpected format");
+            }
+
+            InvertedIndex index = new InvertedIndex();
+            int numOfWords = dis.readInt();
+
+            for (int i = 0; i < numOfWords; i++) {
+                String word = dis.readUTF();
+                IndexValue val = IndexValue.deserialize(dis);
+                index.index.put(word, val);
+            }
+
+            if (dis.readInt() != 42) {
+                throw new RuntimeException("Unexpected format");
+            }
+
+            return index;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

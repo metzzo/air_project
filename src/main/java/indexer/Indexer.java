@@ -114,8 +114,9 @@ public class Indexer {
 
         System.out.println("Map...");
         // map
+        int numFiles = files.size();
         for (int i = 0; i < numThreads; i++) {
-            MapThread t = new MapThread(toIndex, indices, files.size());
+            MapThread t = new MapThread(toIndex, indices, numFiles);
             t.start();
             worker.add(t);
         }
@@ -123,8 +124,9 @@ public class Indexer {
 
         System.out.println("Reduce...");
         // reduce
+        int numIndices = indices.size();
         for (int i = 0; i < numThreads; i++) {
-            ReduceThread t = new ReduceThread(indices, indices.size());
+            ReduceThread t = new ReduceThread(indices, numIndices);
             t.start();
             worker.add(t);
         }
@@ -204,12 +206,16 @@ public class Indexer {
         InvertedIndex baseIndex = new InvertedIndex();
         for (RawDocument doc : documents) {
             // register documents to repository
-            DocumentInfo info =DocumentRepository.getInstance().register(doc.docNo, doc.words.size());
+            DocumentInfo info = DocumentRepository.getInstance().register(doc.docNo, doc.words.size());
 
             // make index
             InvertedIndex index = new InvertedIndex();
             for (String word : doc.words) {
-                index.putWord(word, new WordOccurence(info.getId(), 1));
+                IndexValue val = index.putWord(word, new WordOccurence(info.getId(), 1));
+                int currentFrequency = val.getFrequencyInDocument(info.getId());
+                if (currentFrequency > info.getMaxFrequencyOfWord()) {
+                    info.setMaxFrequencyOfWord(currentFrequency);
+                }
             }
 
             baseIndex.merge(index);

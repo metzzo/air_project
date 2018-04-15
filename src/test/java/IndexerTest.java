@@ -24,7 +24,7 @@ class IndexerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         URL res = classLoader.getResource("simpletestdoc.txt");
         File file = new File(res.getFile());
-        List<String> words = Preprocessor.getInstance().preprocess("hello my name is robert");
+        List<String> words = Preprocessor.getInstance().preprocess("hello my name is robert robert");
         InvertedIndex expectedIndex = new InvertedIndex();
         for (String word : words) {
             expectedIndex.putWord(word, new WordOccurence(info.getId(), 1));
@@ -36,7 +36,8 @@ class IndexerTest {
         // assert
         assertThat(result, is(not(nullValue())));
         assertThat(result, is(expectedIndex));
-        assertThat(info.getSize(), is(4));
+        assertThat(info.getSize(), is(5));
+        assertThat(info.getMaxFrequencyOfWord(), is(2));
     }
 
 
@@ -58,6 +59,7 @@ class IndexerTest {
         assertThat(result.containsWord("mother"), is(true));
         assertThat(result.containsWord("number"), is (true));
         assertThat(info.getSize(), is(greaterThan(100)));
+        assertThat(info.getSize(), is(267));
     }
 
     @Test

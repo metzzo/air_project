@@ -43,6 +43,10 @@ class TFIDFScoreTest {
         this.index.putWord("b", new WordOccurence(doc3.getId(), 2));
         this.index.putWord("c", new WordOccurence(doc3.getId(), 4));
 
+        this.doc1.setMaxFrequencyOfWord(4);
+        this.doc2.setMaxFrequencyOfWord(8);
+        this.doc3.setMaxFrequencyOfWord(4);
+
         this.scorer = new TFIDFScore();
     }
 

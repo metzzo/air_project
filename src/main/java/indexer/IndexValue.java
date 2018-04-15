@@ -1,5 +1,10 @@
 package indexer;
 
+import javax.xml.crypto.Data;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 
 public class IndexValue {
@@ -18,6 +23,7 @@ public class IndexValue {
     public IndexValue(WordOccurence occurence) {
         this.putWord(occurence);
     }
+
 
     public int getFrequencyInDocument(int document) {
         return this.documents.get(document);
@@ -58,5 +64,24 @@ public class IndexValue {
 
     public Map<Integer, Integer> getFrequenciesForDocuments() {
         return this.documents;
+    }
+
+    public void serialize(DataOutputStream dos) throws IOException {
+        dos.writeInt(documents.size());
+        for (Integer doc : this.documents.keySet()) {
+            Integer frequency = this.documents.get(doc);
+            dos.writeInt(doc);
+            dos.writeInt(frequency);
+        }
+    }
+    public static IndexValue deserialize(DataInputStream dis) throws IOException  {
+        IndexValue val = new IndexValue();
+        int count = dis.readInt();
+        for (int i = 0; i < count; i++) {
+            int doc = dis.readInt();
+            int frequency = dis.readInt();
+            val.putWord(new WordOccurence(doc, frequency));
+        }
+        return val;
     }
 }

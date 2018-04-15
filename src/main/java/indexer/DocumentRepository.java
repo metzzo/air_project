@@ -38,6 +38,7 @@ public class DocumentRepository {
 
     synchronized public void clear() {
         this.documentInfosByName.clear();
+        this.documentInfosById.clear();
         this.dirty = true;
     }
 
@@ -47,6 +48,10 @@ public class DocumentRepository {
 
     public DocumentInfo getDocumentById(int id) {
         return this.documentInfosById.getOrDefault(id, null);
+    }
+
+    public int getNumDocuments() {
+        return this.documentInfosByName.size();
     }
 
     public double getAverageDocumentSize() {

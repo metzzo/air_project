@@ -1,6 +1,6 @@
 <DOC>
 <DOCNO> LA010289-0001 </DOCNO>
 <TEXT>
-hello my name is robert
+hello my name is robert robert
 </TEXT>
 </DOC>
