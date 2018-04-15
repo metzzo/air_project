@@ -1,8 +1,6 @@
 package indexer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class IndexValue {
     Map<String, Integer> documents = new HashMap<>();
@@ -48,5 +46,9 @@ public class IndexValue {
         }
         IndexValue other = (IndexValue)obj;
         return other.documents.equals(this.documents);
+    }
+
+    public Set<String> getAllDocuments() {
+        return this.documents.keySet();
     }
 }
