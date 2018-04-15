@@ -1,9 +1,23 @@
 package indexer;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 
+@XmlRootElement(name = "inverted-index")
+@XmlAccessorType(XmlAccessType.NONE)
 public class InvertedIndex {
+    @XmlElement(name = "index")
     private Map<String, IndexValue> index;
+    @XmlElement(name = "max_words_per_document")
     private Map<String, Integer> maxWordsPerDocument;
 
     public InvertedIndex() {
@@ -34,8 +48,9 @@ public class InvertedIndex {
     public void merge(InvertedIndex other) {
         for (String word : other.index.keySet()) {
             IndexValue value = other.index.get(word);
-            for (String document : value.documents.keySet()) {
-                int count = value.documents.get(document);
+            Map<String, Integer> documents = value.getFrequenciesForDocuments();
+            for (String document : documents.keySet()) {
+                int count = documents.get(document);
                 this.putWord(word, new WordOccurence(document, count));
             }
         }
@@ -64,9 +79,10 @@ public class InvertedIndex {
     public void debugPrint() {
         for (String word : this.index.keySet()) {
             IndexValue value = this.index.get(word);
+            Map<String, Integer> documents = value.getFrequenciesForDocuments();
             System.out.print(word + ": ");
-            for (String document : value.documents.keySet()) {
-                int count = value.documents.get(document);
+            for (String document : documents.keySet()) {
+                int count = documents.get(document);
                 System.out.print(document + "(" + count + ");");
             }
             System.out.println();
@@ -100,6 +116,44 @@ public class InvertedIndex {
             }
         }
 
+        for (String doc : this.maxWordsPerDocument.keySet()) {
+            int myCount = this.maxWordsPerDocument.get(doc);
+            int otherCount = other.maxWordsPerDocument.get(doc);
+            if (myCount != otherCount) {
+                return false;
+            }
+        }
+
+        for (String doc : other.maxWordsPerDocument.keySet()) {
+            int myCount = this.maxWordsPerDocument.get(doc);
+            int otherCount = other.maxWordsPerDocument.get(doc);
+            if (myCount != otherCount) {
+                return false;
+            }
+        }
+
         return true;
+    }
+
+    public void serialize(OutputStream stream) {
+        try {
+            JAXBContext jc = JAXBContext.newInstance(InvertedIndex.class);
+            Marshaller marshaller = jc.createMarshaller();
+            //marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(this, stream);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static InvertedIndex deserialize(InputStream stream) {
+        try {
+            JAXBContext jc = JAXBContext.newInstance(InvertedIndex.class);
+            Unmarshaller unmarshaller = jc.createUnmarshaller();
+            //marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            return (InvertedIndex)unmarshaller.unmarshal(stream);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

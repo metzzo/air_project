@@ -1,8 +1,10 @@
+import indexer.DocumentRepository;
 import indexer.IndexValue;
 import indexer.InvertedIndex;
 import indexer.WordOccurence;
 import org.junit.jupiter.api.Test;
 
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -128,5 +130,33 @@ class InvertedIndexTest {
         assertThat(a.getMaxFrequencyInDocument("doc1"), is(1 + 2 + 3 + 4));
         assertThat(a.getMaxFrequencyInDocument("doc2"), is(1));
 
+    }
+
+    @Test
+    void serializeDeserializeWorking() {
+        // arrange
+        InvertedIndex index = new InvertedIndex();
+        index.putWord("a", new WordOccurence("doc1", 4));
+        index.putWord("b", new WordOccurence("doc1", 2));
+        index.putWord("c", new WordOccurence("doc1", 1));
+
+
+        index.putWord("a", new WordOccurence("doc2", 8));
+        index.putWord("b", new WordOccurence("doc2", 1));
+        index.putWord("c", new WordOccurence("doc2", 1));
+
+
+        index.putWord("a", new WordOccurence("doc3", 1));
+        index.putWord("b", new WordOccurence("doc3", 2));
+        index.putWord("c", new WordOccurence("doc3", 4));
+
+        // act
+        ByteArrayOutputStream outstr = new ByteArrayOutputStream();
+        index.serialize(outstr);
+        InputStream instr = new ByteArrayInputStream(outstr.toByteArray());
+        InvertedIndex newIndex = InvertedIndex.deserialize(instr);
+
+        // assert
+        assertThat(index, is(newIndex));
     }
 }

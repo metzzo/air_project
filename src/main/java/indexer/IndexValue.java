@@ -1,14 +1,23 @@
 package indexer;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.*;
 
+@XmlAccessorType(XmlAccessType.NONE)
 public class IndexValue {
-    Map<String, Integer> documents = new HashMap<>();
+    @XmlElement(name = "documents")
+    private Map<String, Integer> documents = new HashMap<>();
 
     public IndexValue(Set<WordOccurence> documents) {
         for (WordOccurence occurence : documents) {
             this.putWord(occurence);
         }
+    }
+
+    public IndexValue() {
+        this(new HashSet<>());
     }
 
     public IndexValue(WordOccurence occurence) {
@@ -50,5 +59,9 @@ public class IndexValue {
 
     public Set<String> getAllDocuments() {
         return this.documents.keySet();
+    }
+
+    public Map<String, Integer> getFrequenciesForDocuments() {
+        return this.documents;
     }
 }
