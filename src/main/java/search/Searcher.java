@@ -26,6 +26,8 @@ public class Searcher {
             contenders.addAll(val.getAllDocuments());
         }
 
+        // TODO: use cosine similarity
+
         List<SearchResult> searchResults = new LinkedList<>();
         for (String contenderDocument : contenders) {
             double score = scorer.scoreDocumentByQuery(index, contenderDocument, query);

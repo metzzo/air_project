@@ -7,7 +7,7 @@ import java.util.*;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class IndexValue {
-    @XmlElement(name = "documents")
+    @XmlElement(name = "dcs")
     private Map<String, Integer> documents = new HashMap<>();
 
     public IndexValue(Set<WordOccurence> documents) {

@@ -15,9 +15,9 @@ import java.util.*;
 @XmlRootElement(name = "inverted-index")
 @XmlAccessorType(XmlAccessType.NONE)
 public class InvertedIndex {
-    @XmlElement(name = "index")
+    @XmlElement(name = "i")
     private Map<String, IndexValue> index;
-    @XmlElement(name = "max_words_per_document")
+    @XmlElement(name = "mwpd")
     private Map<String, Integer> maxWordsPerDocument;
 
     public InvertedIndex() {

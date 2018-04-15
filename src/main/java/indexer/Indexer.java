@@ -17,17 +17,57 @@ public class Indexer {
         List<String> words;
     }
 
-    class IndexingThread extends Thread {
-        private final List<File> queue;
-        private InvertedIndex index;
+    class ReduceThread extends Thread {
+        private final List<InvertedIndex> queue;
+        private final int totalNum;
 
-        IndexingThread(List<File> queue) {
+        ReduceThread(List<InvertedIndex> queue, int totalNum) {
             this.queue = queue;
+            this.totalNum = totalNum;
         }
 
         @Override
         public void run() {
-            this.index = new InvertedIndex();
+            InvertedIndex index1, index2;
+            do {
+                synchronized (this.queue) {
+                    if (this.queue.size() > 1) {
+                        index1 = this.queue.get(0);
+                        this.queue.remove(0);
+
+                        index2 = this.queue.get(0);
+                        this.queue.remove(0);
+
+                        System.out.println("Reducing, remaining size: " + this.queue.size() + " / " + this.totalNum);
+                    } else {
+                        index1 = null;
+                        index2 = null;
+                    }
+                }
+
+                if (index1 != null && index2 != null) {
+                    index1.merge(index2);
+                    synchronized (this.queue) {
+                        this.queue.add(index1);
+                    }
+                }
+            } while (index1 != null && index2 != null);
+        }
+    }
+
+    class MapThread extends Thread {
+        private final List<File> queue;
+        private final List<InvertedIndex> indices;
+        private final int totalNum;
+
+        MapThread(List<File> queue, List<InvertedIndex> indices, int totalNum) {
+            this.queue = queue;
+            this.indices = indices;
+            this.totalNum = totalNum;
+        }
+
+        @Override
+        public void run() {
             File toProcess;
             do {
                 synchronized (this.queue) {
@@ -35,9 +75,7 @@ public class Indexer {
                         toProcess = this.queue.get(0);
                         this.queue.remove(0);
 
-                        synchronized (System.out) {
-                            System.out.println("Indexing File " + toProcess.getPath() + " remaining files " + this.queue.size());
-                        }
+                        System.out.println("Indexing File " + toProcess.getPath() + " remaining files " + this.queue.size() + " / " + this.totalNum);
                     } else {
                         toProcess = null;
                     }
@@ -45,7 +83,9 @@ public class Indexer {
 
                 if (toProcess != null) {
                     InvertedIndex newIndex = Indexer.getInstance().indexFile(toProcess);
-                    this.index.merge(newIndex);
+                    synchronized (this.indices) {
+                        this.indices.add(newIndex);
+                    }
                 }
             } while (toProcess != null);
         }
@@ -68,14 +108,32 @@ public class Indexer {
     }
 
     public InvertedIndex index(List<File> files, int numThreads) {
-        List<IndexingThread> worker = new LinkedList<>();
+        List<Thread> worker = new LinkedList<>();
         List<File> toIndex = new LinkedList<>(files);
+        List<InvertedIndex> indices = new LinkedList<>();
+
+        System.out.println("Map...");
+        // map
         for (int i = 0; i < numThreads; i++) {
-            IndexingThread t = new IndexingThread(toIndex);
+            MapThread t = new MapThread(toIndex, indices, files.size());
             t.start();
             worker.add(t);
         }
-        System.out.println("Files to index: " + files.size());
+        waitForThreads(worker);
+
+        System.out.println("Reduce...");
+        // reduce
+        for (int i = 0; i < numThreads; i++) {
+            ReduceThread t = new ReduceThread(indices, indices.size());
+            t.start();
+            worker.add(t);
+        }
+        waitForThreads(worker);
+
+        return indices.get(0);
+    }
+
+    private void waitForThreads(List<Thread> worker) {
         for (Thread t : worker) {
             try {
                 t.join();
@@ -84,18 +142,8 @@ public class Indexer {
                 throw new RuntimeException(e);
             }
         }
-
-        InvertedIndex index = null;
-        for (IndexingThread t : worker) {
-            if (index == null) {
-                index = t.index;
-            } else {
-                index.merge(t.index);
-            }
-        }
-
-        return index;
     }
+
     public InvertedIndex indexFile(File file) {
         if (!file.exists()) {
             throw new RuntimeException("File to index does not exist");
