@@ -47,6 +47,23 @@ class PreprocessorTest {
     }
 
     @Test
+    void isDoingTokenizationWithApostrophe() {
+        // arrange
+        String input = "hello my's name´s is`s \"robert\"";
+        List<String> expectedOutput = Arrays.asList("hello", "my", "name", "is", "robert");
+
+        // act
+        Preprocessor.getInstance().setCaseFolding(false);
+        Preprocessor.getInstance().setStemming(false);
+        Preprocessor.getInstance().setStopWordRemovalEnabled(false);
+        List<String> actualOutput = Preprocessor.getInstance().preprocess(input);
+
+        // assert
+
+        assertThat(actualOutput, is(expectedOutput));
+    }
+
+    @Test
     void isDoingTokenizationWithComma() {
         // arrange
         String input = "hello, advanced? information! - retrieval. . ( ) _ - ? !";

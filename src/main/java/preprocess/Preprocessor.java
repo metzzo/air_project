@@ -46,39 +46,57 @@ public class Preprocessor {
     }
 
     public List<String> preprocess(String input) {
-        List<String> result = new LinkedList<>();
-        StreamTokenizer tokenizer = new StreamTokenizer(new StringReader(input));
-        tokenizer.lowerCaseMode(isCaseFolding);
-        try {
-            while (tokenizer.nextToken() != StreamTokenizer.TT_EOF) {
-                String val = tokenizer.sval;
-
-                if (val != null) {
-                    val = val.replaceAll("\\.", "");
-                }
-
-                boolean isStopword = this.isStopWordRemovalEnabled && stopWords.contains(val);
-
-                if (val != null && !isStopword) {
-
-                    if (isStemming) {
-                        // weird Java Class is weird
-                        Stemmer s = new Stemmer();
-                        s.add(val.toCharArray(), val.length());
-                        s.stem();
-                        val = s.toString();
-                    }
-
-                    if (val.length() >= minLength) {
-                        result.add(val);
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+        if (isCaseFolding) {
+            input = input.toLowerCase();
         }
+        input = input.replaceAll("(('|´|`)[^\\s]+)", "");
 
+        int currentPosition = 0;
+        List<String> result = new LinkedList<>();
+        StringBuilder currentToken = new StringBuilder();
+        while (currentPosition < input.length()) {
+            char cur = input.charAt(currentPosition);
+            if (    cur <= '\u0020' ||
+                    cur == '.' ||
+                    cur == ':' ||
+                    cur == ',' ||
+                    cur == '?'  ||
+                    cur == '"' ||
+                    cur == '\'' ||
+                    cur == '!' ||
+                    cur == '(' ||
+                    cur == ')' ||
+                    cur == '-' ||
+                    cur == '&' ||
+                    cur == ';') {
+                addToken(result, currentToken.toString());
+                currentToken = new StringBuilder();
+
+            } else {
+                currentToken.append(cur);
+            }
+            currentPosition++;
+        }
+        addToken(result, currentToken.toString());
         return result;
+    }
+
+    private void addToken(List<String> tokens, String val) {
+        boolean isStopword = this.isStopWordRemovalEnabled && stopWords.contains(val);
+
+        if (!isStopword && val.length() > 0) {
+            if (isStemming) {
+                // weird Java Class is weird
+                Stemmer s = new Stemmer();
+                s.add(val.toCharArray(), val.length());
+                s.stem();
+                val = s.toString();
+            }
+
+            if (val.length() >= minLength) {
+                tokens.add(val);
+            }
+        }
     }
 
     public void setStemming(boolean stemming) {
