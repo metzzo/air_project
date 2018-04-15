@@ -13,12 +13,6 @@ public class TFIDFScore implements Scorer {
         return frequency / maxFrequency;
     }
 
-    private double idf(InvertedIndex index, String word) {
-        double numDocumentsContainingWord = index.findByWord(word).getNumDocuments();
-        double numDocuments = (double) index.getNumDocuments();
-        return Math.log(numDocuments / numDocumentsContainingWord);
-    }
-
     public double scoreDocumentByQuery(InvertedIndex index, String document, List<String> query) {
         double score = 0.0;
         for (String word : query) {
@@ -32,7 +26,7 @@ public class TFIDFScore implements Scorer {
             }
 
             double tf = this.tf(index, document, word);
-            double idf = this.idf(index, word);
+            double idf = ScoreUtility.getInstance().idf(index, word);
             score += tf * idf;
         }
         return score;

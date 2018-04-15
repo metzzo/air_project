@@ -56,7 +56,7 @@ public class Preprocessor {
         StringBuilder currentToken = new StringBuilder();
         while (currentPosition < input.length()) {
             char cur = input.charAt(currentPosition);
-            if (    cur <= '\u0020' ||
+            if (    cur <= '\u0020' || // whitespace
                     cur == '.' ||
                     cur == ':' ||
                     cur == ',' ||

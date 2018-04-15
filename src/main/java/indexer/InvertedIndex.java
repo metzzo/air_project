@@ -3,7 +3,6 @@ package indexer;
 import java.util.*;
 
 public class InvertedIndex {
-
     private Map<String, IndexValue> index;
     private Map<String, Integer> maxWordsPerDocument;
 

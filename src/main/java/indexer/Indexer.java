@@ -12,7 +12,7 @@ public class Indexer {
         return Indexer.instance;
     }
     private Indexer() { }
-    private static class Document {
+    private static class RawDocument {
         String docNo;
         List<String> words;
     }
@@ -100,13 +100,13 @@ public class Indexer {
         if (!file.exists()) {
             throw new RuntimeException("File to index does not exist");
         }
-        List<Document> documents = new LinkedList<>();
+        List<RawDocument> documents = new LinkedList<>();
 
         try (FileInputStream fstream = new FileInputStream(file)) {
             BufferedReader br = new BufferedReader(new InputStreamReader(fstream, Charset.forName("ISO8859-1")));
 
             String strLine;
-            Document currentDocument = null;
+            RawDocument currentDocument = null;
             StringBuilder content =  null;
             while ((strLine = br.readLine()) != null)   {
                 int currentPos = 0;
@@ -124,7 +124,7 @@ public class Indexer {
                     if (text.equals("DOCNO")) {
                         content = new StringBuilder();
                     } else if (text.equals("DOC")) {
-                        currentDocument = new Document();
+                        currentDocument = new RawDocument();
                     } else if (text.equals("TEXT")) {
                         content = new StringBuilder();
                     } else if (text.equals("/DOCNO")) {
@@ -151,9 +151,14 @@ public class Indexer {
             throw new RuntimeException(e);
         }
 
+
         // build inverted index for file
         InvertedIndex baseIndex = new InvertedIndex();
-        for (Document doc : documents) {
+        for (RawDocument doc : documents) {
+            // register documents to repository
+            DocumentRepository.getInstance().register(doc.docNo, doc.words.size());
+
+            // make index
             InvertedIndex index = new InvertedIndex();
             for (String word : doc.words) {
                 index.putWord(word, new WordOccurence(doc.docNo, 1));

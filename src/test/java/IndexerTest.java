@@ -1,7 +1,5 @@
-import indexer.IndexValue;
-import indexer.Indexer;
-import indexer.InvertedIndex;
-import indexer.WordOccurence;
+import indexer.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import preprocess.Preprocessor;
 
@@ -13,6 +11,11 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 class IndexerTest {
+    @BeforeEach
+    void setUp() {
+        DocumentRepository.getInstance().clear();
+    }
+
     @Test
     void indexSimpleFileWorking() {
         // arrange
@@ -31,6 +34,7 @@ class IndexerTest {
         // assert
         assertThat(result, is(not(nullValue())));
         assertThat(result, is(expectedIndex));
+        assertThat(DocumentRepository.getInstance().getDocumentSize("LA010289-0001"), is(4));
     }
 
 
@@ -49,6 +53,7 @@ class IndexerTest {
         assertThat(result.getNumWords(), is(greaterThan(10)));
         assertThat(result.containsWord("mother"), is(true));
         assertThat(result.containsWord("number"), is (true));
+        assertThat(DocumentRepository.getInstance().getDocumentSize("LA010289-0001"), is(greaterThan(100)));
     }
 
     @Test
@@ -72,6 +77,7 @@ class IndexerTest {
         IndexValue val = result.findByWord("mother");
         assertThat(val.isInDocument("LA010289-0003"), is(true));
         assertThat(val.isInDocument("LA010289-0004"), is(true));
+        assertThat(DocumentRepository.getInstance().getDocumentSize("LA010289-0001"), is(greaterThan(100)));
     }
 
     @Test
