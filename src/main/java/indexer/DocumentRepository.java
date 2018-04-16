@@ -1,33 +1,16 @@
 package indexer;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-@XmlAccessorType(XmlAccessType.NONE)
-@XmlRootElement
 public class DocumentRepository {
     private static Integer globalIdCounter = 0;
 
-    @XmlElement(name = "byname")
     private Map<String, DocumentInfo> documentInfosByName;
-    @XmlElement(name = "byid")
     private Map<Integer, DocumentInfo> documentInfosById;
-    @XmlElement(name = "avgsize")
-    private double averageDocumentSize;
-    @XmlElement(name = "dirty")
-    private boolean dirty;
+    private double averageDocumentSize = -1;
 
     public DocumentRepository() {
         this.documentInfosByName = new HashMap<>();
@@ -55,14 +38,12 @@ public class DocumentRepository {
             this.documentInfosByName.put(info.getName(), info);
             this.documentInfosById.put(info.getId(), info);
         }
-        this.dirty = true;
         return info;
     }
 
     public void clear() {
         this.documentInfosByName.clear();
         this.documentInfosById.clear();
-        this.dirty = true;
     }
 
     public DocumentInfo getDocumentByName(String document) {
@@ -89,38 +70,60 @@ public class DocumentRepository {
         }
     }
 
-    public double getAverageDocumentSize() {
-        synchronized (this) {
-            if (this.dirty) {
-                this.averageDocumentSize = 0.0;
-                for (DocumentInfo info : this.documentInfosByName.values()) {
-                    this.averageDocumentSize += info.getSize();
-                }
-                this.averageDocumentSize /= this.documentInfosByName.size();
-
-                this.dirty = false;
-            }
+    public void calculateAverageDocumentSize() {
+        this.averageDocumentSize = 0.0;
+        for (DocumentInfo info : this.documentInfosByName.values()) {
+            this.averageDocumentSize += info.getSize();
         }
+        this.averageDocumentSize /= this.documentInfosByName.size();
+    }
+
+    public double getAverageDocumentSize() {
         return this.averageDocumentSize;
     }
 
     public void serialize(OutputStream stream) {
+        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(stream));
         try {
-            JAXBContext jc = JAXBContext.newInstance(DocumentRepository.class);
-            Marshaller marshaller = jc.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(this, stream);
-        } catch (JAXBException e) {
+            dos.writeInt(43);
+            dos.writeDouble(this.averageDocumentSize);
+            dos.writeInt(this.documentInfosById.size());
+            for (Integer id : this.documentInfosById.keySet()) {
+                DocumentInfo info = this.documentInfosById.get(id);
+                dos.writeInt(info.getId());
+                dos.writeInt(info.getSize());
+                dos.writeInt(info.getMaxFrequencyOfWord());
+                dos.writeUTF(info.getName());
+            }
+            dos.writeInt(43);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static DocumentRepository deserialize(InputStream stream) {
         try {
-            JAXBContext jc = JAXBContext.newInstance(DocumentRepository.class);
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
-            //marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            DocumentRepository repo = (DocumentRepository)unmarshaller.unmarshal(stream);
+            DataInputStream dis = new DataInputStream(new BufferedInputStream(stream));
+            if (dis.readInt() != 43) {
+                throw new RuntimeException("Unexpected format");
+            }
+
+            DocumentRepository repo = new DocumentRepository();
+            repo.averageDocumentSize = dis.readDouble();
+            int numOfDocuments = dis.readInt();
+            for (int i = 0; i < numOfDocuments; i++) {
+                DocumentInfo info = new DocumentInfo();
+                info.setId(dis.readInt());
+                info.setSize(dis.readInt());
+                info.setMaxFrequencyOfWord(dis.readInt());
+                info.setName(dis.readUTF());
+                repo.register(info);
+
+            }
+
+            if (dis.readInt() != 43) {
+                throw new RuntimeException("Unexpected format");
+            }
 
             synchronized (globalIdCounter) {
                 // ensure that globalIdCounter is above limit => so it stays unique
@@ -134,7 +137,7 @@ public class DocumentRepository {
             }
 
             return repo;
-        } catch (JAXBException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -153,7 +156,7 @@ public class DocumentRepository {
         }
         DocumentRepository other = (DocumentRepository)obj;
 
-        if (averageDocumentSize != other.averageDocumentSize || dirty != other.dirty) {
+        if (averageDocumentSize != other.averageDocumentSize) {
             return false;
         }
 

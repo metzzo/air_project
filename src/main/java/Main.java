@@ -164,8 +164,7 @@ public class Main {
         try {
             File folder = new File(folderStr);
             List<File> files = Indexer.getInstance().getFilesInDir(folder);
-            DocumentRepository repo = new DocumentRepository();
-            InvertedIndex index = Indexer.getInstance().index(repo, files, threadCount); // Arrays.asList(files.get(0))
+            InvertedIndex index = Indexer.getInstance().index(files, threadCount); // Arrays.asList(files.get(0))
 
             System.out.println("Saving Index...");
             if (dataFile.exists()) {
@@ -177,7 +176,7 @@ public class Main {
             if (xmlFile.exists()) {
                 xmlFile.delete();
             }
-            repo.serialize(new FileOutputStream(xmlFile));
+            index.getDocumentRepository().serialize(new FileOutputStream(xmlFile));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

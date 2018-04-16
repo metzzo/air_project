@@ -107,7 +107,7 @@ public class Indexer {
         return resultFiles;
     }
 
-    public InvertedIndex index(DocumentRepository documentRepository, List<File> files, int numThreads) {
+    public InvertedIndex index(List<File> files, int numThreads) {
         List<Thread> worker = new LinkedList<>();
         List<File> toIndex = new LinkedList<>(files);
         List<InvertedIndex> indices = new LinkedList<>();
@@ -135,7 +135,8 @@ public class Indexer {
         waitForThreads(worker);
 
         InvertedIndex result = indices.get(0);
-        documentRepository.merge(result.getDocumentRepository());
+        System.out.println("Calculate Average Document Size ...");
+        result.getDocumentRepository().calculateAverageDocumentSize();
         return result;
     }
 
@@ -190,7 +191,7 @@ public class Indexer {
                     } else if (text.equals("TEXT")) {
                         content = new StringBuilder();
                     } else if (text.equals("/DOCNO")) {
-                        currentDocument.docNo = content.toString().trim();
+                        currentDocument.docNo = content.toString().replaceAll("\"", "").trim();
                         content = null;
                     } else if (text.equals("/TEXT")) {
                         currentDocument.words = Preprocessor.getInstance().preprocess(content.toString());
@@ -225,7 +226,7 @@ public class Indexer {
 
         // make index
         for (String word : doc.words) {
-            IndexValue val = index.putWord(word, new WordOccurence(info.getId(), 1));
+            IndexValue val = index.putWord(word, info.getId(), 1);
             int currentFrequency = val.getFrequencyInDocument(info.getId());
             if (currentFrequency > info.getMaxFrequencyOfWord()) {
                 info.setMaxFrequencyOfWord(currentFrequency);

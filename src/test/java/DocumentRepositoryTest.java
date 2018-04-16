@@ -37,6 +37,7 @@ class DocumentRepositoryTest {
         repo.register("doc1", 10);
         repo.register("doc2", 5);
         repo.register("doc3", 1);
+        repo.calculateAverageDocumentSize();
 
         assertThat(repo.getAverageDocumentSize(), is((10.0 + 5.0 + 1.0) / 3.0));
     }

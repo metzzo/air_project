@@ -24,6 +24,10 @@ public class IndexValue {
         this.putWord(occurence);
     }
 
+    public IndexValue(int document, int count) {
+        this.putWord(document, count);
+    }
+
 
     public int getFrequencyInDocument(int document) {
         return this.documents.get(document);
@@ -38,11 +42,15 @@ public class IndexValue {
     }
 
     void putWord(WordOccurence occurence) {
-        if (this.documents.containsKey(occurence.document)) {
-            int oldCount = this.documents.get(occurence.document);
-            this.documents.put(occurence.document, oldCount + occurence.count);
+        this.putWord(occurence.document, occurence.count);
+    }
+
+    public void putWord(int document, int count) {
+        if (this.documents.containsKey(document)) {
+            int oldCount = this.documents.get(document);
+            this.documents.put(document, oldCount + count);
         } else {
-            this.documents.put(occurence.document, occurence.count);
+            this.documents.put(document, count);
         }
     }
 
@@ -89,8 +97,9 @@ public class IndexValue {
         for (int i = 0; i < count; i++) {
             int doc = dis.readInt();
             int frequency = dis.readInt();
-            val.putWord(new WordOccurence(doc, frequency));
+            val.putWord(doc, frequency);
         }
         return val;
     }
+
 }

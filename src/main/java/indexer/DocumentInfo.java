@@ -1,18 +1,9 @@
 package indexer;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-
-@XmlAccessorType(XmlAccessType.NONE)
 public class DocumentInfo {
-    @XmlElement(name = "name")
     private String name;
-    @XmlElement(name = "id")
     private int id;
-    @XmlElement(name = "size")
     private int size;
-    @XmlElement(name = "maxfrequencyofword")
     private int maxFrequencyOfWord;
 
     public DocumentInfo(String name, int id, int size) {

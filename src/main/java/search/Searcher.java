@@ -24,6 +24,7 @@ public class Searcher {
         // create document out of query
         DocumentRepository queryRepo = new DocumentRepository();
         InvertedIndex queryIndex = Indexer.getInstance().indexString(queryRepo, "query", query);
+        queryRepo.calculateAverageDocumentSize();
         DocumentInfo queryDoc = queryRepo.getDocumentByName("query");
 
         Set<Integer> contenders = new HashSet<>();

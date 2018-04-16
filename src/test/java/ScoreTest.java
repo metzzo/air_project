@@ -44,6 +44,8 @@ class ScoreTest {
         this.doc1.setMaxFrequencyOfWord(4);
         this.doc2.setMaxFrequencyOfWord(8);
         this.doc3.setMaxFrequencyOfWord(4);
+
+        this.repo.calculateAverageDocumentSize();
     }
 
     @Test

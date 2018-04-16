@@ -13,13 +13,17 @@ public class InvertedIndex {
     }
 
     public IndexValue putWord(String word, WordOccurence wordOccurence) {
+        return this.putWord(word, wordOccurence.document, wordOccurence.count);
+    }
+
+    public IndexValue putWord(String word, int document, int count) {
         IndexValue val;
         if (!this.index.containsKey(word)) {
-            val = new IndexValue(wordOccurence);
+            val = new IndexValue(document, count);
             this.index.put(word, val);
         } else {
             val = this.index.get(word);
-            val.putWord(wordOccurence);
+            val.putWord(document, count);
         }
         return val;
     }
@@ -32,7 +36,7 @@ public class InvertedIndex {
             Map<Integer, Integer> documents = value.getFrequenciesForDocuments();
             for (Integer document : documents.keySet()) {
                 int count = documents.get(document);
-                this.putWord(word, new WordOccurence(document, count));
+                this.putWord(word, document, count);
             }
         }
     }
@@ -106,7 +110,7 @@ public class InvertedIndex {
     }
 
     public void serialize(OutputStream stream) {
-        DataOutputStream dos = new DataOutputStream(stream);
+        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(stream));
         try {
             dos.writeInt(42);
             dos.writeInt(this.index.size());
@@ -123,7 +127,7 @@ public class InvertedIndex {
     }
 
     public static InvertedIndex deserialize(DocumentRepository documentRepository, InputStream stream) {
-        DataInputStream dis = new DataInputStream(stream);
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(stream));
         try {
             if (dis.readInt() != 42) {
                 throw new RuntimeException("Unexpected format");

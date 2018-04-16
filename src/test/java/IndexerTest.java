@@ -38,7 +38,7 @@ class IndexerTest {
         // assert
         assertThat(result, is(not(nullValue())));
         assertThat(result, is(expectedIndex));
-        assertThat(info.getSize(), is(5));
+        assertThat(info.getSize(), is(3));
         assertThat(info.getMaxFrequencyOfWord(), is(2));
     }
 
@@ -61,7 +61,7 @@ class IndexerTest {
         assertThat(result.containsWord("mother"), is(true));
         assertThat(result.containsWord("number"), is (true));
         assertThat(info.getSize(), is(greaterThan(100)));
-        assertThat(info.getSize(), is(267));
+        assertThat(info.getSize(), is(225));
     }
 
     @Test
@@ -75,7 +75,7 @@ class IndexerTest {
         List<File> files = Arrays.asList(file1, file2);
 
         // act
-        InvertedIndex result = Indexer.getInstance().index(repo, files, 8);
+        InvertedIndex result = Indexer.getInstance().index(files, 8);
 
         // assert
         result.debugPrint();
