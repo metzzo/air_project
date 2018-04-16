@@ -1,7 +1,9 @@
 data/
 target/
 .idea/
-inverted_index.txt
+document_repository.xml
+document_repository.data
+inverted_index.data
 
 # Gradle
 .idea/**/gradle.xml

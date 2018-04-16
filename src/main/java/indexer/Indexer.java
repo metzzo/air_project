@@ -51,7 +51,7 @@ public class Indexer {
                         this.queue.add(index1);
                     }
                 }
-            } while (index1 != null && index2 != null);
+            } while (index1 != null);
         }
     }
 
@@ -65,7 +65,6 @@ public class Indexer {
             this.queue = queue;
             this.indices = indices;
             this.totalNum = totalNum;
-            this.documentRepository = new DocumentRepository();
         }
 
         @Override
@@ -84,7 +83,7 @@ public class Indexer {
                 }
 
                 if (toProcess != null) {
-                    InvertedIndex newIndex = Indexer.getInstance().indexFile(this.documentRepository, toProcess);
+                    InvertedIndex newIndex = Indexer.getInstance().indexFile(new DocumentRepository(), toProcess);
                     synchronized (this.indices) {
                         this.indices.add(newIndex);
                     }
@@ -120,9 +119,16 @@ public class Indexer {
         for (int i = 0; i < numThreads; i++) {
             MapThread t = new MapThread(toIndex, indices, numFiles);
             t.start();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             worker.add(t);
         }
         waitForThreads(worker);
+        System.gc();
+        worker.clear();
 
         System.out.println("Reduce...");
         // reduce

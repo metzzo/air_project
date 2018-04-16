@@ -59,8 +59,8 @@ public class Main {
         System.out.println("Loading...");
         InvertedIndex index;
         try {
-            DocumentRepository repo = DocumentRepository.deserialize(new FileInputStream("document_repository.txt"));
-            index = InvertedIndex.deserialize(repo, new FileInputStream("inverted_index.txt"));
+            DocumentRepository repo = DocumentRepository.deserialize(new FileInputStream(xmlFile));
+            index = InvertedIndex.deserialize(repo, new FileInputStream(dataFile));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
