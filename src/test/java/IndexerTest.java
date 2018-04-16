@@ -79,6 +79,7 @@ class IndexerTest {
 
         // assert
         result.debugPrint();
+        repo = result.getDocumentRepository();
         assertThat(result, is(not(nullValue())));
         assertThat(result.containsWord("mother"), is(true));
         assertThat(result.containsWord("number"), is (true));
@@ -91,7 +92,6 @@ class IndexerTest {
     @Test
     void getFilesInDirWorking() {
         // arrange
-
         ClassLoader classLoader = getClass().getClassLoader();
         URL res = classLoader.getResource("testdir");
         File file = new File(res.getFile());
@@ -107,5 +107,19 @@ class IndexerTest {
 
         // assert
         assertThat(new HashSet<>(files), is(expectedFiles));
+    }
+
+    @Test
+    void weirdFileWorking() {
+        // arrange
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL res = classLoader.getResource("la012989");
+        File file = new File(res.getFile());
+
+        // act
+        InvertedIndex result = Indexer.getInstance().indexFile(repo, file);
+
+        // assert
+        assertThat(result, is(not(nullValue())));
     }
 }

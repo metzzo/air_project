@@ -26,6 +26,13 @@ public class DocumentInfo {
 
     }
 
+    public DocumentInfo(DocumentInfo documentInfo) {
+        this.name = documentInfo.name;
+        this.id = documentInfo.id;
+        this.size = documentInfo.size;
+        this.maxFrequencyOfWord = documentInfo.maxFrequencyOfWord;
+    }
+
     public int getId() {
         return id;
     }
@@ -56,5 +63,22 @@ public class DocumentInfo {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof DocumentInfo) || getClass() != obj.getClass()) {
+            return false;
+        }
+        DocumentInfo other = (DocumentInfo)obj;
+        return this.name.equals(other.name) && this.size == other.size && this.maxFrequencyOfWord == other.maxFrequencyOfWord;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.name.hashCode() + this.size * 100 + this.maxFrequencyOfWord * 1000;
     }
 }

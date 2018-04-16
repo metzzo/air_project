@@ -2,10 +2,7 @@ import indexer.DocumentRepository;
 import indexer.Indexer;
 import indexer.InvertedIndex;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,6 +11,9 @@ public class Main {
         INDEX,
         QUERY
     }
+    private static final File dataFile = new File("inverted_index.data");
+    private static final File xmlFile = new File("document_repository.xml");
+
     public static void main(String[] args) {
         Action action = Action.QUERY;
         String folder = "";
@@ -23,7 +23,7 @@ public class Main {
             String param = args[i + 1];
 
             switch(arg) {
-                case "action":
+                case "--action":
                     switch (param) {
                         case "index":
                             action = Action.INDEX;
@@ -35,10 +35,10 @@ public class Main {
                             throw new RuntimeException("Unknown action");
                     }
                     break;
-                case "folder":
+                case "--folder":
                     folder = param;
                     break;
-                case "threadcount":
+                case "--threadcount":
                     threadCount = Integer.valueOf(param);
                     break;
             }
@@ -53,8 +53,6 @@ public class Main {
                 doQuery();
                 break;
         }
-
-
     }
 
     private static void doQuery() {
@@ -70,15 +68,24 @@ public class Main {
     }
 
     private static void doIndex(String folderStr, int threadCount) {
-        File folder = new File(folderStr);
-        List<File> files = Indexer.getInstance().getFilesInDir(folder);
-        DocumentRepository repo = new DocumentRepository();
-        InvertedIndex index = Indexer.getInstance().index(repo, files, threadCount); // Arrays.asList(files.get(0))
-
-        System.out.println("Saving...");
         try {
-            index.serialize(new FileOutputStream("inverted_index.txt"));
-        } catch (FileNotFoundException e) {
+            File folder = new File(folderStr);
+            List<File> files = Indexer.getInstance().getFilesInDir(folder);
+            DocumentRepository repo = new DocumentRepository();
+            InvertedIndex index = Indexer.getInstance().index(repo, files, threadCount); // Arrays.asList(files.get(0))
+
+            System.out.println("Saving Index...");
+            if (dataFile.exists()) {
+                dataFile.delete();
+            }
+            index.serialize(new FileOutputStream(dataFile));
+
+            System.out.println("Saving Document Repository...");
+            if (xmlFile.exists()) {
+                xmlFile.delete();
+            }
+            repo.serialize(new FileOutputStream(xmlFile));
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

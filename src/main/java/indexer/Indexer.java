@@ -61,11 +61,11 @@ public class Indexer {
         private final int totalNum;
         private final DocumentRepository documentRepository;
 
-        MapThread(DocumentRepository documentRepository, List<File> queue, List<InvertedIndex> indices, int totalNum) {
+        MapThread(List<File> queue, List<InvertedIndex> indices, int totalNum) {
             this.queue = queue;
             this.indices = indices;
             this.totalNum = totalNum;
-            this.documentRepository = documentRepository;
+            this.documentRepository = new DocumentRepository();
         }
 
         @Override
@@ -118,7 +118,7 @@ public class Indexer {
         // map
         int numFiles = files.size();
         for (int i = 0; i < numThreads; i++) {
-            MapThread t = new MapThread(documentRepository, toIndex, indices, numFiles);
+            MapThread t = new MapThread(toIndex, indices, numFiles);
             t.start();
             worker.add(t);
         }
@@ -134,7 +134,9 @@ public class Indexer {
         }
         waitForThreads(worker);
 
-        return indices.get(0);
+        InvertedIndex result = indices.get(0);
+        documentRepository.merge(result.getDocumentRepository());
+        return result;
     }
 
     private void waitForThreads(List<Thread> worker) {
@@ -149,17 +151,17 @@ public class Indexer {
     }
 
     public InvertedIndex indexString(DocumentRepository documentRepository, String document, String content) {
+        InvertedIndex index = new InvertedIndex(documentRepository);
         RawDocument rawDocument = new RawDocument();
         rawDocument.docNo = document;
         rawDocument.words = Preprocessor.getInstance().preprocess(content);
-        return constructIndex(documentRepository, Collections.singletonList(rawDocument));
+        return constructIndex(documentRepository, index, rawDocument);
     }
 
     public InvertedIndex indexFile(DocumentRepository documentRepository, File file) {
         if (!file.exists()) {
             throw new RuntimeException("File to index does not exist");
         }
-        List<RawDocument> documents = new LinkedList<>();
 
         try (FileInputStream fstream = new FileInputStream(file)) {
             BufferedReader br = new BufferedReader(new InputStreamReader(fstream, Charset.forName("ISO8859-1")));
@@ -167,6 +169,7 @@ public class Indexer {
             String strLine;
             RawDocument currentDocument = null;
             StringBuilder content =  null;
+            InvertedIndex index = new InvertedIndex(documentRepository);
             while ((strLine = br.readLine()) != null)   {
                 int currentPos = 0;
                 while (true) {
@@ -193,7 +196,9 @@ public class Indexer {
                         currentDocument.words = Preprocessor.getInstance().preprocess(content.toString());
                         content = null;
                     } else if (text.equals("/DOC")) {
-                        documents.add(currentDocument);
+                        if (currentDocument.words != null && currentDocument.docNo != null) {
+                            this.constructIndex(documentRepository, index, currentDocument);
+                        }
                         currentDocument = null;
                     }
 
@@ -205,36 +210,28 @@ public class Indexer {
                 }
             }
             br.close();
+            return index;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
-        return constructIndex(documentRepository, documents);
 
 
     }
 
-    private InvertedIndex constructIndex(DocumentRepository documentRepository, List<RawDocument> documents) {
+    private InvertedIndex constructIndex(DocumentRepository documentRepository, InvertedIndex index, RawDocument doc) {
         // build inverted index for file
-        InvertedIndex baseIndex = new InvertedIndex(documentRepository);
-        for (RawDocument doc : documents) {
-            // register documents to repository
-            DocumentInfo info = documentRepository.register(doc.docNo, doc.words.size());
+        // register documents to repository
+        DocumentInfo info = documentRepository.register(doc.docNo, doc.words.size());
 
-            // make index
-            InvertedIndex index = new InvertedIndex(documentRepository);
-            for (String word : doc.words) {
-                IndexValue val = index.putWord(word, new WordOccurence(info.getId(), 1));
-                int currentFrequency = val.getFrequencyInDocument(info.getId());
-                if (currentFrequency > info.getMaxFrequencyOfWord()) {
-                    info.setMaxFrequencyOfWord(currentFrequency);
-                }
+        // make index
+        for (String word : doc.words) {
+            IndexValue val = index.putWord(word, new WordOccurence(info.getId(), 1));
+            int currentFrequency = val.getFrequencyInDocument(info.getId());
+            if (currentFrequency > info.getMaxFrequencyOfWord()) {
+                info.setMaxFrequencyOfWord(currentFrequency);
             }
-
-            baseIndex.merge(index);
         }
-
-        return baseIndex;
+        return index;
     }
 
 

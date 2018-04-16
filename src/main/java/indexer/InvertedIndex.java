@@ -25,9 +25,7 @@ public class InvertedIndex {
     }
 
     public void merge(InvertedIndex other) {
-        if (other.documentRepo != this.documentRepo) {
-            throw new RuntimeException("Cannot merge indices from different repositories");
-        }
+        this.documentRepo.merge(other.documentRepo);
 
         for (String word : other.index.keySet()) {
             IndexValue value = other.index.get(word);
@@ -75,6 +73,10 @@ public class InvertedIndex {
         }
         InvertedIndex other = (InvertedIndex)obj;
 
+        if (!this.documentRepo.equals(other.documentRepo)) {
+            return false;
+        }
+
         for (String word : this.index.keySet()) {
             IndexValue myValue = this.index.get(word);
             IndexValue otherValue = other.index.get(word);
@@ -92,6 +94,15 @@ public class InvertedIndex {
         }
 
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        for (String word : this.index.keySet()) {
+            hash += word.hashCode() + this.index.get(word).hashCode();
+        }
+        return hash;
     }
 
     public void serialize(OutputStream stream) {

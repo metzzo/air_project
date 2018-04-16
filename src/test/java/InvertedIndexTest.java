@@ -8,6 +8,7 @@ import java.util.HashSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 
 class InvertedIndexTest {
@@ -146,5 +147,69 @@ class InvertedIndexTest {
 
         // assert
         assertThat(index, is(newIndex));
+    }
+
+    @Test
+    void equalsWithSameInstancesWorks() {
+        DocumentInfo doc1 = repo.register("doc1", 0);
+
+        InvertedIndex index1 = new InvertedIndex(repo);
+        index1.putWord("a", new WordOccurence(doc1.getId(), 2));
+        index1.putWord("b", new WordOccurence(doc1.getId(), 4));
+
+
+        InvertedIndex index2 = new InvertedIndex(repo);
+        index2.putWord("a", new WordOccurence(doc1.getId(), 2));
+        index2.putWord("b", new WordOccurence(doc1.getId(), 4));
+
+        assertThat(index1, is(index2));
+    }
+
+    @Test
+    void equalsWithDifferentInstancesWorks() {
+        DocumentInfo doc1 = repo.register("doc1", 0);
+
+        InvertedIndex index1 = new InvertedIndex(repo);
+        index1.putWord("a", new WordOccurence(doc1.getId(), 2));
+        index1.putWord("b", new WordOccurence(doc1.getId(), 4));
+
+
+        InvertedIndex index2 = new InvertedIndex(repo);
+        index2.putWord("a", new WordOccurence(doc1.getId(), 2));
+        index2.putWord("c", new WordOccurence(doc1.getId(), 4));
+
+        assertThat(index1, is(not(index2)));
+    }
+
+    @Test
+    void hashCodeWithSameInstancesWorks() {
+        DocumentInfo doc1 = repo.register("doc1", 0);
+
+        InvertedIndex index1 = new InvertedIndex(repo);
+        index1.putWord("a", new WordOccurence(doc1.getId(), 2));
+        index1.putWord("b", new WordOccurence(doc1.getId(), 4));
+
+
+        InvertedIndex index2 = new InvertedIndex(repo);
+        index2.putWord("a", new WordOccurence(doc1.getId(), 2));
+        index2.putWord("b", new WordOccurence(doc1.getId(), 4));
+
+        assertThat(index1.hashCode(), is(index2.hashCode()));
+    }
+
+    @Test
+    void hashCodeWithDifferentInstancesWorks() {
+        DocumentInfo doc1 = repo.register("doc1", 0);
+
+        InvertedIndex index1 = new InvertedIndex(repo);
+        index1.putWord("a", new WordOccurence(doc1.getId(), 2));
+        index1.putWord("b", new WordOccurence(doc1.getId(), 4));
+
+
+        InvertedIndex index2 = new InvertedIndex(repo);
+        index2.putWord("a", new WordOccurence(doc1.getId(), 2));
+        index2.putWord("c", new WordOccurence(doc1.getId(), 4));
+
+        assertThat(index1.hashCode(), is(not(index2.hashCode())));
     }
 }

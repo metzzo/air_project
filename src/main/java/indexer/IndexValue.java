@@ -58,6 +58,15 @@ public class IndexValue {
         return other.documents.equals(this.documents);
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        for (Integer doc : documents.keySet()) {
+            hash = doc * documents.size() + documents.get(doc).hashCode();
+        }
+        return hash;
+    }
+
     public Set<Integer> getAllDocuments() {
         return this.documents.keySet();
     }
