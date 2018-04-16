@@ -59,7 +59,6 @@ public class Indexer {
         private final List<File> queue;
         private final List<InvertedIndex> indices;
         private final int totalNum;
-        private final DocumentRepository documentRepository;
 
         MapThread(List<File> queue, List<InvertedIndex> indices, int totalNum) {
             this.queue = queue;
@@ -119,11 +118,6 @@ public class Indexer {
         for (int i = 0; i < numThreads; i++) {
             MapThread t = new MapThread(toIndex, indices, numFiles);
             t.start();
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             worker.add(t);
         }
         waitForThreads(worker);

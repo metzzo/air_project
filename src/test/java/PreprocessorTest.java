@@ -6,9 +6,6 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.equalTo;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class PreprocessorTest {
     @Test
