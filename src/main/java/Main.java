@@ -17,6 +17,7 @@ public class Main {
     public static void main(String[] args) {
         Action action = Action.QUERY;
         String folder = "";
+        int threadCount = 1;
         for (int i = 0; i < args.length; i += 2) {
             String arg = args[i];
             String param = args[i + 1];
@@ -37,13 +38,16 @@ public class Main {
                 case "folder":
                     folder = param;
                     break;
+                case "threadcount":
+                    threadCount = Integer.valueOf(param);
+                    break;
             }
 
         }
 
         switch(action) {
             case INDEX:
-                doIndex(folder);
+                doIndex(folder, threadCount);
                 break;
             case QUERY:
                 doQuery();
@@ -65,11 +69,11 @@ public class Main {
         System.out.println("Ready");
     }
 
-    private static void doIndex(String folderStr) {
+    private static void doIndex(String folderStr, int threadCount) {
         File folder = new File(folderStr);
         List<File> files = Indexer.getInstance().getFilesInDir(folder);
         DocumentRepository repo = new DocumentRepository();
-        InvertedIndex index = Indexer.getInstance().index(repo, files, 16); // Arrays.asList(files.get(0))
+        InvertedIndex index = Indexer.getInstance().index(repo, files, threadCount); // Arrays.asList(files.get(0))
 
         System.out.println("Saving...");
         try {
