@@ -96,6 +96,7 @@ public class DocumentRepository {
                 dos.writeUTF(info.getName());
             }
             dos.writeInt(43);
+            dos.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -135,7 +136,7 @@ public class DocumentRepository {
                 }
                 globalIdCounter = currentIndex;
             }
-
+            dis.close();
             return repo;
         } catch (IOException e) {
             throw new RuntimeException(e);

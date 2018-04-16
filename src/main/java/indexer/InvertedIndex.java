@@ -121,6 +121,7 @@ public class InvertedIndex {
                 val.serialize(dos);
             }
             dos.writeInt(42);
+            dos.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -145,6 +146,7 @@ public class InvertedIndex {
             if (dis.readInt() != 42) {
                 throw new RuntimeException("Unexpected format");
             }
+            dis.close();
 
             return index;
         } catch (IOException e) {
