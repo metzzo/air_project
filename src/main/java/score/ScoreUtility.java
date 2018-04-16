@@ -1,6 +1,6 @@
 package score;
 
-import indexer.DocumentRepository;
+import indexer.DocumentInfo;
 import indexer.IndexValue;
 import indexer.InvertedIndex;
 
@@ -14,16 +14,16 @@ public class ScoreUtility {
     private ScoreUtility() {
     }
 
-    public double tf(InvertedIndex index, int document, String word) {
+    public double tf(InvertedIndex index, DocumentInfo documentInfo, String word) {
         IndexValue indexValue = index.findByWord(word);
-        double frequency = (double) indexValue.getFrequencyInDocument(document);
-        double maxFrequency = (double) DocumentRepository.getInstance().getDocumentById(document).getMaxFrequencyOfWord();
+        double frequency = (double) indexValue.getFrequencyInDocument(documentInfo.getId());
+        double maxFrequency = (double) documentInfo.getMaxFrequencyOfWord();
         return frequency / maxFrequency;
     }
 
     public double idf(InvertedIndex index, String word) {
         double numDocumentsContainingWord = index.findByWord(word).getNumDocuments();
-        double numDocuments = (double) DocumentRepository.getInstance().getNumDocuments();
+        double numDocuments = (double) index.getDocumentRepository().getNumDocuments();
         return Math.log(numDocuments / numDocumentsContainingWord); // according to "An Introduction to IR" page 155
     }
 }

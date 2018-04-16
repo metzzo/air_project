@@ -4,10 +4,12 @@ import java.io.*;
 import java.util.*;
 
 public class InvertedIndex {
+    private final DocumentRepository documentRepo;
     private Map<String, IndexValue> index;
 
-    public InvertedIndex() {
+    public InvertedIndex(DocumentRepository repo) {
         this.index = new HashMap<>();
+        this.documentRepo = repo;
     }
 
     public IndexValue putWord(String word, WordOccurence wordOccurence) {
@@ -23,6 +25,10 @@ public class InvertedIndex {
     }
 
     public void merge(InvertedIndex other) {
+        if (other.documentRepo != this.documentRepo) {
+            throw new RuntimeException("Cannot merge indices from different repositories");
+        }
+
         for (String word : other.index.keySet()) {
             IndexValue value = other.index.get(word);
             Map<Integer, Integer> documents = value.getFrequenciesForDocuments();
@@ -105,14 +111,14 @@ public class InvertedIndex {
         }
     }
 
-    public static InvertedIndex deserialize(InputStream stream) {
+    public static InvertedIndex deserialize(DocumentRepository documentRepository, InputStream stream) {
         DataInputStream dis = new DataInputStream(stream);
         try {
             if (dis.readInt() != 42) {
                 throw new RuntimeException("Unexpected format");
             }
 
-            InvertedIndex index = new InvertedIndex();
+            InvertedIndex index = new InvertedIndex(documentRepository);
             int numOfWords = dis.readInt();
 
             for (int i = 0; i < numOfWords; i++) {
@@ -129,5 +135,9 @@ public class InvertedIndex {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public DocumentRepository getDocumentRepository() {
+        return this.documentRepo;
     }
 }

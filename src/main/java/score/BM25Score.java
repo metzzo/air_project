@@ -1,9 +1,8 @@
 package score;
 
+import indexer.DocumentInfo;
 import indexer.DocumentRepository;
 import indexer.InvertedIndex;
-
-import java.util.List;
 
 public class BM25Score implements Scorer {
 
@@ -16,28 +15,14 @@ public class BM25Score implements Scorer {
     }
 
     @Override
-    public double scoreDocumentByQuery(InvertedIndex index, int document, List<String> query) {
-        double score = 0.0;
-        for (String word : query) {
-            // check if word is in index
-            if (!index.containsWord(word)) {
-                continue;
-            }
-            // check if word is in document
-            if (!index.findByWord(word).isInDocument(document)) {
-                continue;
-            }
+    public double scoreDocumentByQuery(InvertedIndex index, DocumentInfo documentInfo, String word) {
+        double idf = ScoreUtility.getInstance().idf(index, word);
+        double tf = ScoreUtility.getInstance().tf(index, documentInfo, word);
+        double Ld = documentInfo.getSize();
+        double Lave = index.getDocumentRepository().getAverageDocumentSize();
+        double nominator = (this.k1 + 1.0)*tf;
+        double denominator = this.k1 * ((1 - this.b) + this.b * (Ld / Lave)) + tf;
 
-            double idf = ScoreUtility.getInstance().idf(index, word);
-            double tf = ScoreUtility.getInstance().tf(index, document, word);
-            double Ld = DocumentRepository.getInstance().getDocumentById(document).getSize();
-            double Lave = DocumentRepository.getInstance().getAverageDocumentSize();
-            double nominator = (this.k1 + 1.0)*tf;
-            double denominator = this.k1 * ((1 - this.b) + this.b * (Ld / Lave)) + tf;
-
-            score += idf * (nominator / denominator);
-        }
-
-        return score;
+        return idf * (nominator / denominator);
     }
 }

@@ -1,3 +1,4 @@
+import indexer.DocumentRepository;
 import indexer.Indexer;
 import indexer.InvertedIndex;
 
@@ -56,7 +57,8 @@ public class Main {
         System.out.println("Loading...");
         InvertedIndex index;
         try {
-            index = InvertedIndex.deserialize(new FileInputStream("inverted_index.txt"));
+            DocumentRepository repo = DocumentRepository.deserialize(new FileInputStream("document_repository.txt"));
+            index = InvertedIndex.deserialize(repo, new FileInputStream("inverted_index.txt"));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -66,8 +68,8 @@ public class Main {
     private static void doIndex(String folderStr) {
         File folder = new File(folderStr);
         List<File> files = Indexer.getInstance().getFilesInDir(folder);
-
-        InvertedIndex index = Indexer.getInstance().index(files, 16); // Arrays.asList(files.get(0))
+        DocumentRepository repo = new DocumentRepository();
+        InvertedIndex index = Indexer.getInstance().index(repo, files, 16); // Arrays.asList(files.get(0))
 
         System.out.println("Saving...");
         try {

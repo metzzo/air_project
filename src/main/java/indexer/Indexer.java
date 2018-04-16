@@ -59,11 +59,13 @@ public class Indexer {
         private final List<File> queue;
         private final List<InvertedIndex> indices;
         private final int totalNum;
+        private final DocumentRepository documentRepository;
 
-        MapThread(List<File> queue, List<InvertedIndex> indices, int totalNum) {
+        MapThread(DocumentRepository documentRepository, List<File> queue, List<InvertedIndex> indices, int totalNum) {
             this.queue = queue;
             this.indices = indices;
             this.totalNum = totalNum;
+            this.documentRepository = documentRepository;
         }
 
         @Override
@@ -82,7 +84,7 @@ public class Indexer {
                 }
 
                 if (toProcess != null) {
-                    InvertedIndex newIndex = Indexer.getInstance().indexFile(toProcess);
+                    InvertedIndex newIndex = Indexer.getInstance().indexFile(this.documentRepository, toProcess);
                     synchronized (this.indices) {
                         this.indices.add(newIndex);
                     }
@@ -107,7 +109,7 @@ public class Indexer {
         return resultFiles;
     }
 
-    public InvertedIndex index(List<File> files, int numThreads) {
+    public InvertedIndex index(DocumentRepository documentRepository, List<File> files, int numThreads) {
         List<Thread> worker = new LinkedList<>();
         List<File> toIndex = new LinkedList<>(files);
         List<InvertedIndex> indices = new LinkedList<>();
@@ -116,7 +118,7 @@ public class Indexer {
         // map
         int numFiles = files.size();
         for (int i = 0; i < numThreads; i++) {
-            MapThread t = new MapThread(toIndex, indices, numFiles);
+            MapThread t = new MapThread(documentRepository, toIndex, indices, numFiles);
             t.start();
             worker.add(t);
         }
@@ -146,7 +148,14 @@ public class Indexer {
         }
     }
 
-    public InvertedIndex indexFile(File file) {
+    public InvertedIndex indexString(DocumentRepository documentRepository, String document, String content) {
+        RawDocument rawDocument = new RawDocument();
+        rawDocument.docNo = document;
+        rawDocument.words = Preprocessor.getInstance().preprocess(content);
+        return constructIndex(documentRepository, Collections.singletonList(rawDocument));
+    }
+
+    public InvertedIndex indexFile(DocumentRepository documentRepository, File file) {
         if (!file.exists()) {
             throw new RuntimeException("File to index does not exist");
         }
@@ -200,16 +209,20 @@ public class Indexer {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+        return constructIndex(documentRepository, documents);
 
 
+    }
+
+    private InvertedIndex constructIndex(DocumentRepository documentRepository, List<RawDocument> documents) {
         // build inverted index for file
-        InvertedIndex baseIndex = new InvertedIndex();
+        InvertedIndex baseIndex = new InvertedIndex(documentRepository);
         for (RawDocument doc : documents) {
             // register documents to repository
-            DocumentInfo info = DocumentRepository.getInstance().register(doc.docNo, doc.words.size());
+            DocumentInfo info = documentRepository.register(doc.docNo, doc.words.size());
 
             // make index
-            InvertedIndex index = new InvertedIndex();
+            InvertedIndex index = new InvertedIndex(documentRepository);
             for (String word : doc.words) {
                 IndexValue val = index.putWord(word, new WordOccurence(info.getId(), 1));
                 int currentFrequency = val.getFrequencyInDocument(info.getId());
@@ -223,4 +236,6 @@ public class Indexer {
 
         return baseIndex;
     }
+
+
 }

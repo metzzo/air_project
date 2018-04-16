@@ -2,6 +2,7 @@ package search;
 
 import indexer.IndexValue;
 import indexer.InvertedIndex;
+import score.CosineSimilarity;
 import score.Scorer;
 
 import java.util.*;
@@ -30,7 +31,12 @@ public class Searcher {
 
         List<SearchResult> searchResults = new LinkedList<>();
         for (Integer contenderDocument : contenders) {
-            double score = scorer.scoreDocumentByQuery(index, contenderDocument, query);
+            double score = CosineSimilarity.getInstance().scoreDocumentByQuery(
+                    index,
+                    index.getDocumentRepository().getDocumentById(contenderDocument),
+                    query,
+                    scorer
+            );
             SearchResult result = new SearchResult(contenderDocument, score);
             searchResults.add(result);
         }

@@ -11,29 +11,31 @@ import static org.hamcrest.Matchers.is;
 
 
 class InvertedIndexTest {
+    private DocumentRepository repo;
+
     @BeforeEach
     void setUp() {
-        DocumentRepository.getInstance().clear();
+        this.repo = new DocumentRepository();
     }
 
     @Test
     void isMergeWorking() {
         // arrange
-        DocumentInfo doc1 = DocumentRepository.getInstance().register("doc1", 0);
-        DocumentInfo doc2 = DocumentRepository.getInstance().register("doc2", 0);
-        DocumentInfo doc3 = DocumentRepository.getInstance().register("doc3", 0);
-        DocumentInfo doc4 = DocumentRepository.getInstance().register("doc4", 0);
+        DocumentInfo doc1 = repo.register("doc1", 0);
+        DocumentInfo doc2 = repo.register("doc2", 0);
+        DocumentInfo doc3 = repo.register("doc3", 0);
+        DocumentInfo doc4 = repo.register("doc4", 0);
 
-        InvertedIndex a = new InvertedIndex();
+        InvertedIndex a = new InvertedIndex(repo);
         a.putWord("a", new WordOccurence(doc1.getId(), 1));
         a.putWord("b", new WordOccurence(doc2.getId(), 1));
 
-        InvertedIndex b = new InvertedIndex();
+        InvertedIndex b = new InvertedIndex(repo);
         b.putWord("b", new WordOccurence(doc2.getId(), 1));
         b.putWord("b", new WordOccurence(doc3.getId(), 1));
         b.putWord("c", new WordOccurence(doc4.getId(), 1));
 
-        InvertedIndex expected = new InvertedIndex();
+        InvertedIndex expected = new InvertedIndex(repo);
         expected.putWord("a", new WordOccurence(doc1.getId(), 1));
         expected.putWord("b", new WordOccurence(doc2.getId(), 2));
         expected.putWord("b", new WordOccurence(doc3.getId(), 1));
@@ -49,9 +51,9 @@ class InvertedIndexTest {
     @Test
     void isMergeEmptyWorking() {
         // arrange
-        InvertedIndex a = new InvertedIndex();
-        InvertedIndex b = new InvertedIndex();
-        InvertedIndex expected = new InvertedIndex();
+        InvertedIndex a = new InvertedIndex(repo);
+        InvertedIndex b = new InvertedIndex(repo);
+        InvertedIndex expected = new InvertedIndex(repo);
 
         // act
         a.merge(b);
@@ -63,15 +65,15 @@ class InvertedIndexTest {
     @Test
     void isMergeSameWorking() {
         // arrange
-        DocumentInfo doc1 = DocumentRepository.getInstance().register("doc1", 0);
+        DocumentInfo doc1 = repo.register("doc1", 0);
 
-        InvertedIndex a = new InvertedIndex();
+        InvertedIndex a = new InvertedIndex(repo);
         a.putWord("a", new WordOccurence(doc1.getId(), 1));
 
-        InvertedIndex b = new InvertedIndex();
+        InvertedIndex b = new InvertedIndex(repo);
         b.putWord("a", new WordOccurence(doc1.getId(), 1));
 
-        InvertedIndex expected = new InvertedIndex();
+        InvertedIndex expected = new InvertedIndex(repo);
         expected.putWord("a", new WordOccurence(doc1.getId(), 2));
 
         // act
@@ -84,10 +86,10 @@ class InvertedIndexTest {
     @Test
     void isPutWordWorking() {
         // arrange
-        DocumentInfo doc1 = DocumentRepository.getInstance().register("doc1", 0);
-        DocumentInfo doc2 = DocumentRepository.getInstance().register("doc2", 0);
-        DocumentInfo doc3 = DocumentRepository.getInstance().register("doc3", 0);
-        InvertedIndex a = new InvertedIndex();
+        DocumentInfo doc1 = repo.register("doc1", 0);
+        DocumentInfo doc2 = repo.register("doc2", 0);
+        DocumentInfo doc3 = repo.register("doc3", 0);
+        InvertedIndex a = new InvertedIndex(repo);
 
         // act
         a.putWord("a", new WordOccurence(doc1.getId(), 1));
@@ -117,11 +119,11 @@ class InvertedIndexTest {
     @Test
     void serializeDeserializeWorking() {
         // arrange
-        DocumentInfo doc1 = DocumentRepository.getInstance().register("doc1", 0);
-        DocumentInfo doc2 = DocumentRepository.getInstance().register("doc2", 0);
-        DocumentInfo doc3 = DocumentRepository.getInstance().register("doc3", 0);
+        DocumentInfo doc1 = repo.register("doc1", 0);
+        DocumentInfo doc2 = repo.register("doc2", 0);
+        DocumentInfo doc3 = repo.register("doc3", 0);
 
-        InvertedIndex index = new InvertedIndex();
+        InvertedIndex index = new InvertedIndex(repo);
         index.putWord("a", new WordOccurence(doc1.getId(), 4));
         index.putWord("b", new WordOccurence(doc1.getId(), 2));
         index.putWord("c", new WordOccurence(doc1.getId(), 1));
@@ -140,7 +142,7 @@ class InvertedIndexTest {
         ByteArrayOutputStream outstr = new ByteArrayOutputStream();
         index.serialize(outstr);
         InputStream instr = new ByteArrayInputStream(outstr.toByteArray());
-        InvertedIndex newIndex = InvertedIndex.deserialize(instr);
+        InvertedIndex newIndex = InvertedIndex.deserialize(repo, instr);
 
         // assert
         assertThat(index, is(newIndex));

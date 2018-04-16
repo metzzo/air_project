@@ -16,8 +16,8 @@ public class SearchResult implements Comparable<SearchResult> {
         return score;
     }
 
-    public String getDocumentName() {
-        return DocumentRepository.getInstance().getDocumentById(document).getName();
+    public int getDocumentId() {
+        return this.document;
     }
 
     public int getRank() {

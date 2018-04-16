@@ -7,28 +7,30 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
 class DocumentRepositoryTest {
+    private DocumentRepository repo;
+
     @BeforeEach
     void setUp() {
-        DocumentRepository.getInstance().clear();
+        repo = new DocumentRepository();
     }
 
     @Test
     void registerAndGetDocumentSizeWorks() {
-        DocumentRepository.getInstance().register("doc1", 10);
-        DocumentRepository.getInstance().register("doc2", 5);
-        DocumentRepository.getInstance().register("doc3", 1);
+        repo.register("doc1", 10);
+        repo.register("doc2", 5);
+        repo.register("doc3", 1);
 
-        assertThat(DocumentRepository.getInstance().getDocumentByName("doc1").getSize(), is(10));
-        assertThat(DocumentRepository.getInstance().getDocumentByName("doc2").getSize(), is(5));
-        assertThat(DocumentRepository.getInstance().getDocumentByName("doc3").getSize(), is(1));
+        assertThat(repo.getDocumentByName("doc1").getSize(), is(10));
+        assertThat(repo.getDocumentByName("doc2").getSize(), is(5));
+        assertThat(repo.getDocumentByName("doc3").getSize(), is(1));
     }
 
     @Test
     void getAverageDocumentSizeWorks() {
-        DocumentRepository.getInstance().register("doc1", 10);
-        DocumentRepository.getInstance().register("doc2", 5);
-        DocumentRepository.getInstance().register("doc3", 1);
+        repo.register("doc1", 10);
+        repo.register("doc2", 5);
+        repo.register("doc3", 1);
 
-        assertThat(DocumentRepository.getInstance().getAverageDocumentSize(), is((10.0 + 5.0 + 1.0) / 3.0));
+        assertThat(repo.getAverageDocumentSize(), is((10.0 + 5.0 + 1.0) / 3.0));
     }
 }

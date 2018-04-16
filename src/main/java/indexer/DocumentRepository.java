@@ -1,23 +1,24 @@
 package indexer;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+@XmlAccessorType(XmlAccessType.NONE)
 public class DocumentRepository {
-
-    private static DocumentRepository documentRepository = new DocumentRepository();
-
-    public static DocumentRepository getInstance() {
-        return documentRepository;
-    }
-
-
+    @XmlElement(name = "byname")
     private Map<String, DocumentInfo> documentInfosByName;
+    @XmlElement(name = "byid")
     private Map<Integer, DocumentInfo> documentInfosById;
+    @XmlElement(name = "avgsize")
     private double averageDocumentSize;
+    @XmlElement(name = "dirty")
     private boolean dirty;
 
-    private DocumentRepository() {
+    public DocumentRepository() {
         this.documentInfosByName = new HashMap<>();
         this.documentInfosById = new HashMap<>();
     }
@@ -67,5 +68,13 @@ public class DocumentRepository {
             }
         }
         return this.averageDocumentSize;
+    }
+
+    public void serialize() {
+
+    }
+
+    public static DocumentRepository deserialize(FileInputStream fis) {
+        return null;
     }
 }
