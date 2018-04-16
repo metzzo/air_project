@@ -1,9 +1,9 @@
 package search;
 
-import indexer.IndexValue;
-import indexer.InvertedIndex;
+import indexer.*;
 import score.CosineSimilarity;
-import score.Scorer;
+import score.ScoreCalculator;
+import score.SimilarityCalculator;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,22 +19,26 @@ public class Searcher {
     private Searcher() { }
 
 
-    public List<SearchResult> search(InvertedIndex index, List<String> query, Scorer scorer, int maxNum) {
+    public List<SearchResult> search(InvertedIndex index, String query, ScoreCalculator scorer, SimilarityCalculator similarity, int maxNum) {
         // get candidate documents by chosing documents that contain at least 1 term of the query
+        // create document out of query
+        DocumentRepository queryRepo = new DocumentRepository();
+        InvertedIndex queryIndex = Indexer.getInstance().indexString(queryRepo, "query", query);
+        DocumentInfo queryDoc = queryRepo.getDocumentByName("query");
+
         Set<Integer> contenders = new HashSet<>();
-        for (String word : query) {
+        for (String word : queryIndex.getWords()) {
             IndexValue val = index.findByWord(word);
             contenders.addAll(val.getAllDocuments());
         }
 
-        // TODO: use cosine similarity
-
         List<SearchResult> searchResults = new LinkedList<>();
         for (Integer contenderDocument : contenders) {
-            double score = CosineSimilarity.getInstance().scoreDocumentByQuery(
+            double score = similarity.similarityToQuery(
                     index,
+                    queryIndex,
                     index.getDocumentRepository().getDocumentById(contenderDocument),
-                    query,
+                    queryDoc,
                     scorer
             );
             SearchResult result = new SearchResult(contenderDocument, score);

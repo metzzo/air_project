@@ -1,10 +1,9 @@
 package score;
 
 import indexer.DocumentInfo;
-import indexer.DocumentRepository;
 import indexer.InvertedIndex;
 
-public class BM25Score implements Scorer {
+public class BM25Score implements ScoreCalculator {
 
     private final double k1;
     private final double b;
@@ -15,7 +14,7 @@ public class BM25Score implements Scorer {
     }
 
     @Override
-    public double scoreDocumentByQuery(InvertedIndex index, DocumentInfo documentInfo, String word) {
+    public double scoreWord(InvertedIndex index, DocumentInfo documentInfo, String word) {
         double idf = ScoreUtility.getInstance().idf(index, word);
         double tf = ScoreUtility.getInstance().tf(index, documentInfo, word);
         double Ld = documentInfo.getSize();

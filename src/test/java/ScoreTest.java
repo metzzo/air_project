@@ -5,11 +5,8 @@ import indexer.WordOccurence;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import score.BM25Score;
-import score.Scorer;
+import score.ScoreCalculator;
 import score.TFIDFScore;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -52,12 +49,12 @@ class ScoreTest {
     @Test
     void scoreWithBM25() {
         // arrange
-        Scorer scorer = new BM25Score(1.5, 0.75);
+        ScoreCalculator scorer = new BM25Score(1.5, 0.75);
 
         // act
-        double score =  scorer.scoreDocumentByQuery(this.index, this.doc2, "d") +
-                        scorer.scoreDocumentByQuery(this.index, this.doc2, "e") +
-                        scorer.scoreDocumentByQuery(this.index, this.doc2, "f");
+        double score =  scorer.scoreWord(this.index, this.doc2, "d") +
+                        scorer.scoreWord(this.index, this.doc2, "e") +
+                        scorer.scoreWord(this.index, this.doc2, "f");
 
         // assert
         assertThat(score, is(1.3477174143543214));
@@ -65,13 +62,13 @@ class ScoreTest {
     @Test
     void scoreWithTFIDF() {
         // arrange
-        Scorer scorer = new TFIDFScore();
+        ScoreCalculator scorer = new TFIDFScore();
 
         // act
         double score =
-                scorer.scoreDocumentByQuery(this.index, this.doc2, "d") +
-                scorer.scoreDocumentByQuery(this.index, this.doc2, "e") +
-                scorer.scoreDocumentByQuery(this.index, this.doc2, "f");
+                scorer.scoreWord(this.index, this.doc2, "d") +
+                scorer.scoreWord(this.index, this.doc2, "e") +
+                scorer.scoreWord(this.index, this.doc2, "f");
 
 
         // assert

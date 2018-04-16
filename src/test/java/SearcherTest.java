@@ -4,12 +4,12 @@ import indexer.InvertedIndex;
 import indexer.WordOccurence;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import score.Scorer;
+import score.ScoreCalculator;
 
+import score.SimilarityCalculator;
 import search.SearchResult;
 import search.Searcher;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -32,33 +32,34 @@ class SearcherTest {
         DocumentInfo doc3 = repo.register("doc3", 0);
 
         InvertedIndex index = new InvertedIndex(repo);
-        index.putWord("a", new WordOccurence(doc1.getId(), 4));
-        index.putWord("b", new WordOccurence(doc1.getId(), 2));
-        index.putWord("c", new WordOccurence(doc1.getId(), 1));
+        index.putWord("hallo", new WordOccurence(doc1.getId(), 4));
+        index.putWord("robert", new WordOccurence(doc1.getId(), 2));
+        index.putWord("wat", new WordOccurence(doc1.getId(), 1));
 
 
-        index.putWord("a", new WordOccurence(doc2.getId(), 8));
-        index.putWord("b", new WordOccurence(doc2.getId(), 1));
-        index.putWord("c", new WordOccurence(doc2.getId(), 1));
+        index.putWord("hallo", new WordOccurence(doc2.getId(), 8));
+        index.putWord("robert", new WordOccurence(doc2.getId(), 1));
+        index.putWord("wat", new WordOccurence(doc2.getId(), 1));
 
 
-        index.putWord("a", new WordOccurence(doc3.getId(), 1));
-        index.putWord("b", new WordOccurence(doc3.getId(), 2));
-        index.putWord("c", new WordOccurence(doc3.getId(), 4));
+        index.putWord("hallo", new WordOccurence(doc3.getId(), 1));
+        index.putWord("robert", new WordOccurence(doc3.getId(), 2));
+        index.putWord("wat", new WordOccurence(doc3.getId(), 4));
 
-        Scorer scorer = (index1, document, query) -> {
-            if (document.getId() == doc1.getId()) {
+
+
+        SimilarityCalculator similarity = (index1, queryIndex, documentInfo, queryDoc, scorer) -> {
+            if (documentInfo.getId() == doc1.getId()) {
                 return 3;
-            } else if (document.getId() == doc2.getId()) {
+            } else if (documentInfo.getId() == doc2.getId()) {
                 return 2;
             } else {
                 return 1;
             }
         };
-        List<String> query = Arrays.asList("a", "b", "c");
 
         // act
-        List<SearchResult> result = Searcher.getInstance().search(index, query, scorer, 2);
+        List<SearchResult> result = Searcher.getInstance().search(index, "hallo robert wat", null, similarity, 2);
 
         // assert
         assertThat(result.size(), is(2));

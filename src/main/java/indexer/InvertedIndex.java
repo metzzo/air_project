@@ -140,4 +140,8 @@ public class InvertedIndex {
     public DocumentRepository getDocumentRepository() {
         return this.documentRepo;
     }
+
+    public Set<String> getWords() {
+        return this.index.keySet();
+    }
 }
