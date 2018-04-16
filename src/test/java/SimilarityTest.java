@@ -3,10 +3,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import score.CosineSimilarity;
 import score.ScoreCalculator;
-import search.SearchResult;
-import search.Searcher;
-
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -42,24 +38,27 @@ public class SimilarityTest {
         index.putWord("robert", new WordOccurence(doc3.getId(), 2));
         index.putWord("wat", new WordOccurence(doc3.getId(), 4));
 
-        ScoreCalculator score = (ScoreCalculator) (calcIndex, documentInfo, word) -> {
-            if (word.equals("hallo")) {
-                if (calcIndex == index) {
-                    return 0.1;
+        ScoreCalculator score = new ScoreCalculator() {
+            @Override
+            public double scoreWord(InvertedIndex calcIndex, InvertedIndex queryIndex, DocumentInfo documentInfo, String word) {
+                if (word.equals("hallo")) {
+                    if (calcIndex == index) {
+                        return 0.1;
+                    } else {
+                        return 0.2;
+                    }
+                } else if (word.equals("robert")) {
+                    if (calcIndex == index) {
+                        return 0.3;
+                    } else {
+                        return 0.4;
+                    }
                 } else {
-                    return 0.2;
-                }
-            } else if (word.equals("robert")) {
-                if (calcIndex == index) {
-                    return 0.3;
-                } else {
-                    return 0.4;
-                }
-            } else {
-                if (calcIndex == index) {
-                    return 0.5;
-                } else {
-                    return 0.6;
+                    if (calcIndex == index) {
+                        return 0.5;
+                    } else {
+                        return 0.6;
+                    }
                 }
             }
         };
@@ -71,10 +70,10 @@ public class SimilarityTest {
         queryIndex.putWord("robert", new WordOccurence(queryDoc.getId(), 1));
 
 
-        double score_word1_doc = score.scoreWord(index, doc1, "hallo");
-        double score_word2_doc = score.scoreWord(index, doc1, "robert");
-        double score_word1_query = score.scoreWord(queryIndex, queryDoc, "hallo");
-        double score_word2_query = score.scoreWord(queryIndex, queryDoc, "robert");
+        double score_word1_doc = score.scoreWord(index, index, doc1, "hallo");
+        double score_word2_doc = score.scoreWord(index, index, doc1, "robert");
+        double score_word1_query = score.scoreWord(index, queryIndex, queryDoc, "hallo");
+        double score_word2_query = score.scoreWord(index, queryIndex, queryDoc, "robert");
 
         double length_doc = Math.sqrt(score_word1_doc*score_word1_doc + score_word2_doc*score_word2_doc);
         double length_query = Math.sqrt(score_word1_query*score_word1_query + score_word2_query*score_word2_query);

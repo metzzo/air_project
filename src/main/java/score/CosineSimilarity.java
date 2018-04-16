@@ -10,10 +10,10 @@ public class CosineSimilarity implements SimilarityCalculator {
         int current_pos = 0;
         for (String word : queryIndex.getWords()) {
             // check if word is in document and check if is in index
-            if (index.findByWord(word).isInDocument(documentInfo.getId()) && index.containsWord(word)) { // here was a NullPointerException?
-                doc_vec[current_pos] = scorer.scoreWord(index, documentInfo, word);
-                query_vec[current_pos] = scorer.scoreWord(queryIndex, queryDoc, word);
+            if (index.containsWord(word) && index.findByWord(word).isInDocument(documentInfo.getId())) {
+                doc_vec[current_pos] = scorer.scoreWord(index, index, documentInfo, word);
             }
+            query_vec[current_pos] = scorer.scoreWord(index, queryIndex, queryDoc, word);
             current_pos++;
         }
 
@@ -30,6 +30,8 @@ public class CosineSimilarity implements SimilarityCalculator {
         length_query_vec = Math.sqrt(length_query_vec);
         length_doc_vec = Math.sqrt(length_doc_vec);
 
-        return dot / (length_query_vec * length_doc_vec);
+        double similarity = dot / (length_query_vec * length_doc_vec);
+
+        return similarity;
     }
 }

@@ -22,10 +22,8 @@ public class Searcher {
     public List<SearchResult> search(InvertedIndex index, String query, ScoreCalculator scorer, SimilarityCalculator similarity, int maxNum) {
         // get candidate documents by chosing documents that contain at least 1 term of the query
         // create document out of query
-        DocumentRepository queryRepo = new DocumentRepository();
-        InvertedIndex queryIndex = Indexer.getInstance().indexString(queryRepo, "query", query);
-        queryRepo.calculateAverageDocumentSize();
-        DocumentInfo queryDoc = queryRepo.getDocumentByName("query");
+        InvertedIndex queryIndex = Indexer.getInstance().indexString(index.getDocumentRepository(), "query", query);
+        DocumentInfo queryDoc = index.getDocumentRepository().getDocumentByName("query");
 
         Set<Integer> contenders = new HashSet<>();
         for (String word : queryIndex.getWords()) {
@@ -42,6 +40,7 @@ public class Searcher {
                     queryDoc,
                     scorer
             );
+
             SearchResult result = new SearchResult(contenderDocument, score);
             searchResults.add(result);
         }

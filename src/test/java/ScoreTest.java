@@ -54,9 +54,9 @@ class ScoreTest {
         ScoreCalculator scorer = new BM25Score(1.5, 0.75);
 
         // act
-        double score =  scorer.scoreWord(this.index, this.doc2, "d") +
-                        scorer.scoreWord(this.index, this.doc2, "e") +
-                        scorer.scoreWord(this.index, this.doc2, "f");
+        double score =  scorer.scoreWord(this.index, this.index, this.doc2, "d") +
+                        scorer.scoreWord(this.index, this.index, this.doc2, "e") +
+                        scorer.scoreWord(this.index, this.index, this.doc2, "f");
 
         // assert
         assertThat(score, is(1.3477174143543214));
@@ -68,9 +68,9 @@ class ScoreTest {
 
         // act
         double score =
-                scorer.scoreWord(this.index, this.doc2, "d") +
-                scorer.scoreWord(this.index, this.doc2, "e") +
-                scorer.scoreWord(this.index, this.doc2, "f");
+                scorer.scoreWord(this.index, this.index, this.doc2, "d") +
+                scorer.scoreWord(this.index, this.index, this.doc2, "e") +
+                scorer.scoreWord(this.index, this.index, this.doc2, "f");
 
 
         // assert

@@ -197,7 +197,7 @@ public class Indexer {
                         currentDocument.words = Preprocessor.getInstance().preprocess(content.toString());
                         content = null;
                     } else if (text.equals("/DOC")) {
-                        if (currentDocument.words != null && currentDocument.docNo != null) {
+                        if (currentDocument.words != null && currentDocument.docNo != null && currentDocument.words.size() > 0) {
                             this.constructIndex(documentRepository, index, currentDocument);
                         }
                         currentDocument = null;
@@ -215,8 +215,6 @@ public class Indexer {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     private InvertedIndex constructIndex(DocumentRepository documentRepository, InvertedIndex index, RawDocument doc) {

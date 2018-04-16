@@ -30,13 +30,6 @@ public class SearchResult implements Comparable<SearchResult> {
 
     @Override
     public int compareTo(SearchResult o) {
-        double delta = o.score - this.score;
-        if (delta == 0.0) {
-            return 0;
-        } else if (delta > 0.0) {
-            return 1;
-        } else {
-            return -1;
-        }
+        return Double.compare(o.score, this.score);
     }
 }

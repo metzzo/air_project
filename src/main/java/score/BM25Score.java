@@ -14,9 +14,9 @@ public class BM25Score implements ScoreCalculator {
     }
 
     @Override
-    public double scoreWord(InvertedIndex index, DocumentInfo documentInfo, String word) {
+    public double scoreWord(InvertedIndex index, InvertedIndex queryIndex, DocumentInfo documentInfo, String word) {
+        double tf = ScoreUtility.getInstance().tf(queryIndex, documentInfo, word);
         double idf = ScoreUtility.getInstance().idf(index, word);
-        double tf = ScoreUtility.getInstance().tf(index, documentInfo, word);
         double Ld = documentInfo.getSize();
         double Lave = index.getDocumentRepository().getAverageDocumentSize();
         double nominator = (this.k1 + 1.0)*tf;

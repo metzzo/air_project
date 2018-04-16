@@ -39,7 +39,7 @@ public class Main {
             String arg = args[i];
             String param = args[i + 1];
 
-            switch(arg) {
+            switch(arg.toLowerCase()) {
                 case "--action":
                     switch (param) {
                         case "index":
@@ -52,7 +52,7 @@ public class Main {
                             throw new RuntimeException("Unknown action");
                     }
                     break;
-                case "score":
+                case "--score":
                     switch (param) {
                         case "tfidf":
                             score = Score.TFIDF;
@@ -87,17 +87,17 @@ public class Main {
                 case "--k1":
                     k1 = Double.valueOf(param);
                     break;
-                case "stopwordremoval": {
+                case "--stopwordremoval": {
                     Boolean enable = Boolean.valueOf(param);
                     Preprocessor.getInstance().setStopWordRemovalEnabled(enable);
                     break;
                 }
-                case "casefolding": {
+                case "----casefolding": {
                     Boolean enable = Boolean.valueOf(param);
                     Preprocessor.getInstance().setCaseFolding(enable);
                     break;
                 }
-                case "stemming": {
+                case "--stemming": {
                     Boolean enable = Boolean.valueOf(param);
                     Preprocessor.getInstance().setStemming(enable);
                     break;
