@@ -1,6 +1,7 @@
 import indexer.DocumentRepository;
 import indexer.Indexer;
 import indexer.InvertedIndex;
+import preprocess.Preprocessor;
 import preprocess.Topic;
 import preprocess.TopicExtractor;
 import score.*;
@@ -86,6 +87,21 @@ public class Main {
                 case "--k1":
                     k1 = Double.valueOf(param);
                     break;
+                case "stopwordremoval": {
+                    Boolean enable = Boolean.valueOf(param);
+                    Preprocessor.getInstance().setStopWordRemovalEnabled(enable);
+                    break;
+                }
+                case "casefolding": {
+                    Boolean enable = Boolean.valueOf(param);
+                    Preprocessor.getInstance().setCaseFolding(enable);
+                    break;
+                }
+                case "stemming": {
+                    Boolean enable = Boolean.valueOf(param);
+                    Preprocessor.getInstance().setStemming(enable);
+                    break;
+                }
                 default:
                     throw new RuntimeException("Unknown Parameter");
             }

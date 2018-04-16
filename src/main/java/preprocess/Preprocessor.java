@@ -82,7 +82,7 @@ public class Preprocessor {
     }
 
     private void addToken(List<String> tokens, String val) {
-        boolean isStopword = this.isStopWordRemovalEnabled && stopWords.contains(val);
+        boolean isStopword = this.isStopWordRemovalEnabled && stopWords.contains(val.toLowerCase());
 
         if (!isStopword && val.length() > 0) {
             if (isStemming) {
