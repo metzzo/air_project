@@ -26,7 +26,6 @@ class SearcherTest {
     @Test
     void simpleSearchWorking() {
         // arrange
-
         DocumentInfo doc1 = repo.register("doc1", 0);
         DocumentInfo doc2 = repo.register("doc2", 0);
         DocumentInfo doc3 = repo.register("doc3", 0);
