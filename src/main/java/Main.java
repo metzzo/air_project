@@ -34,6 +34,12 @@ public class Main {
         double k1 = 1.5;
         double b = 0.75;
         String topicfile = "";
+
+        Preprocessor.getInstance().setLemmatizing(true);
+        Preprocessor.getInstance().setStemming(false);
+        Preprocessor.getInstance().setStopWordRemovalEnabled(true);
+        Preprocessor.getInstance().setCaseFolding(true);
+
         for (int i = 0; i < args.length; i += 2) {
             String arg = args[i];
             String param = args[i + 1];
@@ -91,7 +97,7 @@ public class Main {
                     Preprocessor.getInstance().setStopWordRemovalEnabled(enable);
                     break;
                 }
-                case "----casefolding": {
+                case "--casefolding": {
                     Boolean enable = Boolean.valueOf(param);
                     Preprocessor.getInstance().setCaseFolding(enable);
                     break;
@@ -99,6 +105,11 @@ public class Main {
                 case "--stemming": {
                     Boolean enable = Boolean.valueOf(param);
                     Preprocessor.getInstance().setStemming(enable);
+                    break;
+                }
+                case "--lemmatize": {
+                    Boolean enable = Boolean.valueOf(param);
+                    Preprocessor.getInstance().setLemmatizing(enable);
                     break;
                 }
                 default:

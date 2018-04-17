@@ -95,12 +95,14 @@ public class DocumentRepository {
         try {
             dos.writeInt(43);
             dos.writeDouble(this.averageDocumentSize);
+            dos.writeDouble(this.meanAverageTextFrequency);
             dos.writeInt(this.documentInfosById.size());
             for (Integer id : this.documentInfosById.keySet()) {
                 DocumentInfo info = this.documentInfosById.get(id);
                 dos.writeInt(info.getId());
                 dos.writeInt(info.getSize());
                 dos.writeInt(info.getMaxFrequencyOfWord());
+                dos.writeDouble(info.getAverageTextFrequency());
                 dos.writeUTF(info.getName());
             }
             dos.writeInt(43);
@@ -119,12 +121,14 @@ public class DocumentRepository {
 
             DocumentRepository repo = new DocumentRepository();
             repo.averageDocumentSize = dis.readDouble();
+            repo.meanAverageTextFrequency = dis.readDouble();
             int numOfDocuments = dis.readInt();
             for (int i = 0; i < numOfDocuments; i++) {
                 DocumentInfo info = new DocumentInfo();
                 info.setId(dis.readInt());
                 info.setSize(dis.readInt());
                 info.setMaxFrequencyOfWord(dis.readInt());
+                info.setAverageTextFrequency(dis.readDouble());
                 info.setName(dis.readUTF());
                 repo.register(info);
 
