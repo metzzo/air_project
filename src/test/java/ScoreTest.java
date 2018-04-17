@@ -5,6 +5,7 @@ import indexer.WordOccurence;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import score.BM25Score;
+import score.BM25VAScore;
 import score.ScoreCalculator;
 import score.TFIDFScore;
 
@@ -23,8 +24,13 @@ class ScoreTest {
         repo = new DocumentRepository();
 
         this.doc1 = repo.register("doc1", 7);
+        this.doc1.setAverageTextFrequency((4 + 2 + 1)/3.0);
+
         this.doc2 = repo.register("doc2", 10);
+        this.doc2.setAverageTextFrequency((8 + 1 + 1)/3.0);
+
         this.doc3 = repo.register("doc3", 7);
+        this.doc3.setAverageTextFrequency((4 + 2 + 1)/3.0);
 
         this.index = new InvertedIndex(repo);
         this.index.putWord("a", new WordOccurence(doc1.getId(), 4));
@@ -45,7 +51,7 @@ class ScoreTest {
         this.doc2.setMaxFrequencyOfWord(8);
         this.doc3.setMaxFrequencyOfWord(4);
 
-        this.repo.calculateAverageDocumentSize();
+        this.repo.calculateMetrics();
     }
 
     @Test
@@ -61,6 +67,20 @@ class ScoreTest {
         // assert
         assertThat(score, is(1.3477174143543214));
     }
+    @Test
+    void scoreWithBM25VA() {
+        // arrange
+        ScoreCalculator scorer = new BM25VAScore(1.5);
+
+        // act
+        double score =  scorer.scoreWord(this.index, this.index, this.doc2, "d") +
+                scorer.scoreWord(this.index, this.index, this.doc2, "e") +
+                scorer.scoreWord(this.index, this.index, this.doc2, "f");
+
+        // assert
+        assertThat(score, is(1.2530911572239556));
+    }
+
     @Test
     void scoreWithTFIDF() {
         // arrange

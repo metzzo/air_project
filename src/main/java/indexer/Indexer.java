@@ -136,7 +136,7 @@ public class Indexer {
 
         InvertedIndex result = indices.get(0);
         System.out.println("Calculate Average Document Size ...");
-        result.getDocumentRepository().calculateAverageDocumentSize();
+        result.getDocumentRepository().calculateMetrics();
         return result;
     }
 
@@ -222,14 +222,19 @@ public class Indexer {
         // register documents to repository
         DocumentInfo info = documentRepository.register(doc.docNo, doc.words.size());
 
+        double sumFrequencies = 0.0;
         // make index
         for (String word : doc.words) {
             IndexValue val = index.putWord(word, info.getId(), 1);
             int currentFrequency = val.getFrequencyInDocument(info.getId());
+            sumFrequencies += currentFrequency;
             if (currentFrequency > info.getMaxFrequencyOfWord()) {
                 info.setMaxFrequencyOfWord(currentFrequency);
             }
         }
+
+        info.setAverageTextFrequency(sumFrequencies / doc.words.size());
+
         return index;
     }
 

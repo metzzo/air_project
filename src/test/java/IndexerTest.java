@@ -40,6 +40,7 @@ class IndexerTest {
         assertThat(result, is(expectedIndex));
         assertThat(info.getSize(), is(3));
         assertThat(info.getMaxFrequencyOfWord(), is(2));
+        assertThat(info.getAverageTextFrequency(), is((1 + 1 + 2) / 3.0));
     }
 
 

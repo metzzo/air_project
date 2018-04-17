@@ -9,7 +9,6 @@ import search.SearchResult;
 import search.Searcher;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -20,7 +19,7 @@ public class Main {
     enum Score {
         TFIDF,
         BM25,
-        BM25L
+        BM25VA
     }
     private static final File dataFile = new File("inverted_index.data");
     private static final File xmlFile = new File("document_repository.xml");
@@ -60,8 +59,8 @@ public class Main {
                         case "bm25":
                             score = Score.BM25;
                             break;
-                        case "bm25l":
-                            score = Score.BM25L;
+                        case "bm25va":
+                            score = Score.BM25VA;
                             break;
                         default:
                             throw new RuntimeException("Unknown score");
@@ -140,8 +139,9 @@ public class Main {
             case BM25:
                 scorer = new BM25Score(k1, b);
                 break;
-            case BM25L:
-                throw new RuntimeException("Not yet implemented");
+            case BM25VA:
+                scorer = new BM25VAScore(k1);
+                break;
         }
         for (Topic topic : topics) {
             List<SearchResult> results = Searcher.getInstance().search(index, topic.getQuery(), scorer, similarity, numResults);

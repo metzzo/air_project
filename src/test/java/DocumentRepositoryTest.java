@@ -11,7 +11,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.*;
 
 class DocumentRepositoryTest {
     private DocumentRepository repo;
@@ -37,9 +36,25 @@ class DocumentRepositoryTest {
         repo.register("doc1", 10);
         repo.register("doc2", 5);
         repo.register("doc3", 1);
-        repo.calculateAverageDocumentSize();
+        repo.calculateMetrics();
 
         assertThat(repo.getAverageDocumentSize(), is((10.0 + 5.0 + 1.0) / 3.0));
+    }
+
+    @Test
+    void getMeanAverageTextFrequencyWorks() {
+        DocumentInfo di = repo.register("doc1", 10);
+        di.setAverageTextFrequency(2);
+
+        di = repo.register("doc2", 5);
+        di.setAverageTextFrequency(3);
+
+        di = repo.register("doc3", 1);
+        di.setAverageTextFrequency(4);
+
+        repo.calculateMetrics();
+
+        assertThat(repo.getMeanAverageTextFrequency(), is((2.0 + 3.0 + 4.0) / 3.0));
     }
 
     @Test

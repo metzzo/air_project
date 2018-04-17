@@ -5,6 +5,7 @@ public class DocumentInfo {
     private int id;
     private int size;
     private int maxFrequencyOfWord;
+    private double averageTextFrequency;
 
     public DocumentInfo(String name, int id, int size) {
         this.name = name;
@@ -22,6 +23,7 @@ public class DocumentInfo {
         this.id = documentInfo.id;
         this.size = documentInfo.size;
         this.maxFrequencyOfWord = documentInfo.maxFrequencyOfWord;
+        this.averageTextFrequency = documentInfo.averageTextFrequency;
     }
 
     public int getId() {
@@ -40,6 +42,10 @@ public class DocumentInfo {
         return maxFrequencyOfWord;
     }
 
+    public double getAverageTextFrequency() {
+        return averageTextFrequency;
+    }
+
     public void setSize(int size) {
         this.size = size;
     }
@@ -54,6 +60,10 @@ public class DocumentInfo {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setAverageTextFrequency(double averageTextFrequency) {
+        this.averageTextFrequency = averageTextFrequency;
     }
 
     @Override

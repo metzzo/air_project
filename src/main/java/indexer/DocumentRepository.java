@@ -11,6 +11,7 @@ public class DocumentRepository {
     private Map<String, DocumentInfo> documentInfosByName;
     private Map<Integer, DocumentInfo> documentInfosById;
     private double averageDocumentSize = -1;
+    private double meanAverageTextFrequency;
 
     public DocumentRepository() {
         this.documentInfosByName = new HashMap<>();
@@ -70,16 +71,23 @@ public class DocumentRepository {
         }
     }
 
-    public void calculateAverageDocumentSize() {
+    public void calculateMetrics() {
         this.averageDocumentSize = 0.0;
+        this.meanAverageTextFrequency = 0.0;
         for (DocumentInfo info : this.documentInfosByName.values()) {
             this.averageDocumentSize += info.getSize();
+            this.meanAverageTextFrequency += info.getAverageTextFrequency();
         }
         this.averageDocumentSize /= this.documentInfosByName.size();
+        this.meanAverageTextFrequency /= this.documentInfosByName.size();
     }
 
     public double getAverageDocumentSize() {
         return this.averageDocumentSize;
+    }
+
+    public double getMeanAverageTextFrequency() {
+        return meanAverageTextFrequency;
     }
 
     public void serialize(OutputStream stream) {
