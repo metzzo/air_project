@@ -1,3 +1,6 @@
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import preprocess.Preprocessor;
 
@@ -8,6 +11,23 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 class PreprocessorTest {
+    @BeforeEach
+    void setUp() {
+        Preprocessor.getInstance().setCaseFolding(false);
+        Preprocessor.getInstance().setStemming(false);
+        Preprocessor.getInstance().setStopWordRemovalEnabled(false);
+        Preprocessor.getInstance().setLemmatizing(false);
+    }
+
+    @AfterEach
+    void tearDown() {
+        Preprocessor.getInstance().setCaseFolding(false);
+        Preprocessor.getInstance().setStemming(true);
+        Preprocessor.getInstance().setStopWordRemovalEnabled(false);
+        Preprocessor.getInstance().setLemmatizing(false);
+    }
+
+
     @Test
     void isDoingCaseFolding() {
         // arrange
@@ -16,10 +36,7 @@ class PreprocessorTest {
 
         // act
         Preprocessor.getInstance().setCaseFolding(true);
-        Preprocessor.getInstance().setStemming(false);
-        Preprocessor.getInstance().setStopWordRemovalEnabled(false);
-
-        List<String> actualOutput = Preprocessor.getInstance().preprocess(input);
+        List<String> actualOutput = Preprocessor.getInstance().preprocess(null, input);
 
         // assert
 
@@ -33,13 +50,9 @@ class PreprocessorTest {
         List<String> expectedOutput = Arrays.asList("hello", "advanced", "information", "retrieval");
 
         // act
-        Preprocessor.getInstance().setCaseFolding(false);
-        Preprocessor.getInstance().setStemming(false);
-        Preprocessor.getInstance().setStopWordRemovalEnabled(false);
-        List<String> actualOutput = Preprocessor.getInstance().preprocess(input);
+        List<String> actualOutput = Preprocessor.getInstance().preprocess(null, input);
 
         // assert
-
         assertThat(actualOutput, is(expectedOutput));
     }
 
@@ -50,10 +63,7 @@ class PreprocessorTest {
         List<String> expectedOutput = Arrays.asList("hello", "my", "name", "is", "robert");
 
         // act
-        Preprocessor.getInstance().setCaseFolding(false);
-        Preprocessor.getInstance().setStemming(false);
-        Preprocessor.getInstance().setStopWordRemovalEnabled(false);
-        List<String> actualOutput = Preprocessor.getInstance().preprocess(input);
+        List<String> actualOutput = Preprocessor.getInstance().preprocess(null, input);
 
         // assert
 
@@ -67,13 +77,10 @@ class PreprocessorTest {
         List<String> expectedOutput = Arrays.asList("hello", "advanced", "information", "retrieval");
 
         // act
-        Preprocessor.getInstance().setCaseFolding(false);
-        Preprocessor.getInstance().setStemming(false);
-        Preprocessor.getInstance().setStopWordRemovalEnabled(false);
-        List<String> actualOutput = Preprocessor.getInstance().preprocess(input);
+
+        List<String> actualOutput = Preprocessor.getInstance().preprocess(null, input);
 
         // assert
-
         assertThat(actualOutput, is(expectedOutput));
     }
 
@@ -84,11 +91,8 @@ class PreprocessorTest {
         List<String> expectedOutput = Arrays.asList("hello", "advanced", "information", "retrieval");
 
         // act
-
-        Preprocessor.getInstance().setCaseFolding(false);
-        Preprocessor.getInstance().setStemming(false);
         Preprocessor.getInstance().setStopWordRemovalEnabled(true);
-        List<String> actualOutput = Preprocessor.getInstance().preprocess(input);
+        List<String> actualOutput = Preprocessor.getInstance().preprocess(null, input);
 
         // assert
 
@@ -102,10 +106,23 @@ class PreprocessorTest {
         List<String> expectedOutput = Arrays.asList("hello", "advanc", "inform", "retriev");
 
         // act
-        Preprocessor.getInstance().setCaseFolding(false);
         Preprocessor.getInstance().setStemming(true);
-        Preprocessor.getInstance().setStopWordRemovalEnabled(false);
-        List<String> actualOutput = Preprocessor.getInstance().preprocess(input);
+        List<String> actualOutput = Preprocessor.getInstance().preprocess(null, input);
+
+        // assert
+
+        assertThat(actualOutput, is(expectedOutput));
+    }
+
+    @Test
+    void isLemmatizing() {
+        // arrange
+        String input = "hello advanced information retrieval";
+        List<String> expectedOutput = Arrays.asList("hello", "advance", "information", "retrieval");
+
+        // act
+        Preprocessor.getInstance().setLemmatizing(true);
+        List<String> actualOutput = Preprocessor.getInstance().preprocess(new StanfordCoreNLP(Preprocessor.stanfordNlpProperties()), input);
 
         // assert
 

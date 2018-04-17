@@ -26,14 +26,14 @@ class IndexerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         URL res = classLoader.getResource("simpletestdoc.txt");
         File file = new File(res.getFile());
-        List<String> words = Preprocessor.getInstance().preprocess("hello my name is robert robert");
+        List<String> words = Preprocessor.getInstance().preprocess(null, "hello my name is robert robert");
         InvertedIndex expectedIndex = new InvertedIndex(repo);
         for (String word : words) {
             expectedIndex.putWord(word, new WordOccurence(info.getId(), 1));
         }
 
         // act
-        InvertedIndex result = Indexer.getInstance().indexFile(repo, file);
+        InvertedIndex result = Indexer.getInstance().indexFile(null, repo, file);
 
         // assert
         assertThat(result, is(not(nullValue())));
@@ -54,7 +54,7 @@ class IndexerTest {
         File file = new File(res.getFile());
 
         // act
-        InvertedIndex result = Indexer.getInstance().indexFile(repo, file);
+        InvertedIndex result = Indexer.getInstance().indexFile(null, repo, file);
 
         // assert
         assertThat(result, is(not(nullValue())));
@@ -62,7 +62,7 @@ class IndexerTest {
         assertThat(result.containsWord("mother"), is(true));
         assertThat(result.containsWord("number"), is (true));
         assertThat(info.getSize(), is(greaterThan(100)));
-        assertThat(info.getSize(), is(225));
+        assertThat(info.getSize(), is(246));
     }
 
     @Test
@@ -118,7 +118,7 @@ class IndexerTest {
         File file = new File(res.getFile());
 
         // act
-        InvertedIndex result = Indexer.getInstance().indexFile(repo, file);
+        InvertedIndex result = Indexer.getInstance().indexFile(null, repo, file);
 
         // assert
         assertThat(result, is(not(nullValue())));

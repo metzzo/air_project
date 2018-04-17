@@ -1,6 +1,8 @@
 package search;
 
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import indexer.*;
+import preprocess.Preprocessor;
 import score.CosineSimilarity;
 import score.ScoreCalculator;
 import score.SimilarityCalculator;
@@ -11,18 +13,21 @@ import java.util.stream.Collectors;
 public class Searcher {
 
     private static Searcher searcher = new Searcher();
+    private final StanfordCoreNLP pipeline;
 
     public static Searcher getInstance() {
         return searcher;
     }
 
-    private Searcher() { }
+    private Searcher() {
+        this.pipeline = new StanfordCoreNLP(Preprocessor.stanfordNlpProperties());
+    }
 
 
     public List<SearchResult> search(InvertedIndex index, String query, ScoreCalculator scorer, SimilarityCalculator similarity, int maxNum) {
         // get candidate documents by chosing documents that contain at least 1 term of the query
         // create document out of query
-        InvertedIndex queryIndex = Indexer.getInstance().indexString(index.getDocumentRepository(), "query", query);
+        InvertedIndex queryIndex = Indexer.getInstance().indexString(this.pipeline, index.getDocumentRepository(), "query", query);
         DocumentInfo queryDoc = index.getDocumentRepository().getDocumentByName("query");
 
         Set<Integer> contenders = new HashSet<>();

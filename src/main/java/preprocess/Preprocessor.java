@@ -1,5 +1,10 @@
 package preprocess;
 
+import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.util.CoreMap;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StreamTokenizer;
@@ -16,7 +21,7 @@ public class Preprocessor {
     private boolean isStopWordRemovalEnabled = true;
     private boolean isCaseFolding = true;
     private boolean isStemming = true;
-    private int minLength = 2;
+    private boolean isLemmatizing = false;
 
     public static Preprocessor getInstance() {
         return ourInstance;
@@ -45,7 +50,7 @@ public class Preprocessor {
         }
     }
 
-    public List<String> preprocess(String input) {
+    public List<String> preprocess(StanfordCoreNLP pipeline, String input) {
         if (isCaseFolding) {
             input = input.toLowerCase();
         }
@@ -67,9 +72,10 @@ public class Preprocessor {
                     cur == '(' ||
                     cur == ')' ||
                     cur == '-' ||
+                    cur == '_' ||
                     cur == '&' ||
                     cur == ';') {
-                addToken(result, currentToken.toString());
+                addToken(pipeline, result, currentToken.toString());
                 currentToken = new StringBuilder();
 
             } else {
@@ -77,11 +83,11 @@ public class Preprocessor {
             }
             currentPosition++;
         }
-        addToken(result, currentToken.toString());
+        addToken(pipeline, result, currentToken.toString());
         return result;
     }
 
-    private void addToken(List<String> tokens, String val) {
+    private void addToken(StanfordCoreNLP pipeline, List<String> tokens, String val) {
         boolean isStopword = this.isStopWordRemovalEnabled && stopWords.contains(val.toLowerCase());
 
         if (!isStopword && val.length() > 0) {
@@ -93,9 +99,20 @@ public class Preprocessor {
                 val = s.toString();
             }
 
-            if (val.length() >= minLength) {
-                tokens.add(val);
+            if (isLemmatizing) {
+                Annotation tokenAnnotation = new Annotation(val);
+                pipeline.annotate(tokenAnnotation);  // necessary for the LemmaAnnotation to be set.
+                List<CoreMap> list = tokenAnnotation.get(CoreAnnotations.SentencesAnnotation.class);
+                val = list
+                        .get(0).get(CoreAnnotations.TokensAnnotation.class)
+                        .get(0).get(CoreAnnotations.LemmaAnnotation.class);
             }
+
+            if (isLemmatizing && isStemming) {
+                throw new RuntimeException("Cannot lemmatize AND stemm");
+            }
+
+            tokens.add(val);
         }
     }
 
@@ -105,6 +122,14 @@ public class Preprocessor {
 
     public boolean isStemming() {
         return isStemming;
+    }
+
+    public void setLemmatizing(boolean lemmatizing) {
+        isLemmatizing = lemmatizing;
+    }
+
+    public boolean isLemmatizing() {
+        return isLemmatizing;
     }
 
     public void setCaseFolding(boolean caseFolding) {
@@ -121,5 +146,12 @@ public class Preprocessor {
 
     public boolean isStopWordRemovalEnabled() {
         return isStopWordRemovalEnabled;
+    }
+
+    public static Properties stanfordNlpProperties() {
+        Properties props;
+        props = new Properties();
+        props.put("annotators", "tokenize, ssplit, pos, lemma");
+        return props;
     }
 }

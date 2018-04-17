@@ -1,5 +1,6 @@
 package indexer;
 
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import preprocess.Preprocessor;
 
 import java.io.*;
@@ -59,11 +60,13 @@ public class Indexer {
         private final List<File> queue;
         private final List<InvertedIndex> indices;
         private final int totalNum;
+        private StanfordCoreNLP pipeline;
 
         MapThread(List<File> queue, List<InvertedIndex> indices, int totalNum) {
             this.queue = queue;
             this.indices = indices;
             this.totalNum = totalNum;
+            this.pipeline = new StanfordCoreNLP(Preprocessor.stanfordNlpProperties());
         }
 
         @Override
@@ -82,7 +85,7 @@ public class Indexer {
                 }
 
                 if (toProcess != null) {
-                    InvertedIndex newIndex = Indexer.getInstance().indexFile(new DocumentRepository(), toProcess);
+                    InvertedIndex newIndex = Indexer.getInstance().indexFile(this.pipeline, new DocumentRepository(), toProcess);
                     synchronized (this.indices) {
                         this.indices.add(newIndex);
                     }
@@ -151,15 +154,15 @@ public class Indexer {
         }
     }
 
-    public InvertedIndex indexString(DocumentRepository documentRepository, String document, String content) {
+    public InvertedIndex indexString(StanfordCoreNLP pipeline, DocumentRepository documentRepository, String document, String content) {
         InvertedIndex index = new InvertedIndex(documentRepository);
         RawDocument rawDocument = new RawDocument();
         rawDocument.docNo = document;
-        rawDocument.words = Preprocessor.getInstance().preprocess(content);
+        rawDocument.words = Preprocessor.getInstance().preprocess(pipeline, content);
         return constructIndex(documentRepository, index, rawDocument);
     }
 
-    public InvertedIndex indexFile(DocumentRepository documentRepository, File file) {
+    public InvertedIndex indexFile(StanfordCoreNLP pipeline, DocumentRepository documentRepository, File file) {
         if (!file.exists()) {
             throw new RuntimeException("File to index does not exist");
         }
@@ -194,7 +197,7 @@ public class Indexer {
                         currentDocument.docNo = content.toString().replaceAll("\"", "").trim();
                         content = null;
                     } else if (text.equals("/TEXT")) {
-                        currentDocument.words = Preprocessor.getInstance().preprocess(content.toString());
+                        currentDocument.words = Preprocessor.getInstance().preprocess(pipeline, content.toString());
                         content = null;
                     } else if (text.equals("/DOC")) {
                         if (currentDocument.words != null && currentDocument.docNo != null && currentDocument.words.size() > 0) {
