@@ -10,10 +10,12 @@ public class CosineSimilarity implements SimilarityCalculator {
         int current_pos = 0;
         for (String word : queryIndex.getWords()) {
             // check if word is in document and check if is in index
-            if (index.containsWord(word) && index.findByWord(word).isInDocument(documentInfo.getId())) {
-                doc_vec[current_pos] = scorer.scoreWord(index, index, documentInfo, word);
+            if (index.containsWord(word)) {
+                if (index.findByWord(word).isInDocument(documentInfo.getId())) {
+                    doc_vec[current_pos] = scorer.scoreWord(index, index, documentInfo, word);
+                }
+                query_vec[current_pos] = scorer.scoreWord(index, queryIndex, queryDoc, word);
             }
-            query_vec[current_pos] = scorer.scoreWord(index, queryIndex, queryDoc, word);
             current_pos++;
         }
 

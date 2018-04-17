@@ -26,11 +26,10 @@ class IndexerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         URL res = classLoader.getResource("simpletestdoc.txt");
         File file = new File(res.getFile());
-        List<String> words = Preprocessor.getInstance().preprocess(null, "hello my name is robert robert");
         InvertedIndex expectedIndex = new InvertedIndex(repo);
-        for (String word : words) {
-            expectedIndex.putWord(word, new WordOccurence(info.getId(), 1));
-        }
+
+        expectedIndex.putWord("hello", new WordOccurence(info.getId(), 1));
+        expectedIndex.putWord("robert", new WordOccurence(info.getId(), 2));
 
         // act
         InvertedIndex result = Indexer.getInstance().indexFile(null, repo, file);
@@ -40,7 +39,7 @@ class IndexerTest {
         assertThat(result, is(expectedIndex));
         assertThat(info.getSize(), is(3));
         assertThat(info.getMaxFrequencyOfWord(), is(2));
-        assertThat(info.getAverageTextFrequency(), is((1 + 1 + 2) / 3.0));
+        assertThat(info.getAverageTextFrequency(), is((1.0/2.0 + 2.0/2.0) / 2.0));
     }
 
 
@@ -115,6 +114,20 @@ class IndexerTest {
         // arrange
         ClassLoader classLoader = getClass().getClassLoader();
         URL res = classLoader.getResource("la012989");
+        File file = new File(res.getFile());
+
+        // act
+        InvertedIndex result = Indexer.getInstance().indexFile(null, repo, file);
+
+        // assert
+        assertThat(result, is(not(nullValue())));
+    }
+
+    @Test
+    void weirdFile2Working() {
+        // arrange
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL res = classLoader.getResource("fb396035");
         File file = new File(res.getFile());
 
         // act

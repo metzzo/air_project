@@ -31,10 +31,14 @@ public class DocumentRepository {
 
             info = old;
         } else {
-            info.setId(globalIdCounter);
+            if (info.getId() == -1) {
+                info.setId(globalIdCounter);
 
-            // this ensures that IDs are unique in every document
-            synchronized (globalIdCounter) { globalIdCounter++; }
+                // this ensures that IDs are unique in every document
+                synchronized (globalIdCounter) {
+                    globalIdCounter++;
+                }
+            }
 
             this.documentInfosByName.put(info.getName(), info);
             this.documentInfosById.put(info.getId(), info);

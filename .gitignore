@@ -4,6 +4,8 @@ target/
 document_repository.xml
 document_repository.data
 inverted_index.data
+trec_eval.exe
+*.jar
 
 # Gradle
 .idea/**/gradle.xml

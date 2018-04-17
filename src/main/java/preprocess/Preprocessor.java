@@ -5,10 +5,7 @@ import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StreamTokenizer;
-import java.io.StringReader;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 
@@ -31,19 +28,14 @@ public class Preprocessor {
         this.stopWords = new HashSet<>();
 
         ClassLoader classLoader = getClass().getClassLoader();
-        URL res = classLoader.getResource(STOP_WORDS);
+        InputStream res = classLoader.getResourceAsStream(STOP_WORDS);
         if (res != null) {
-            File file = new File(res.getFile());
-
-            try (Scanner scanner = new Scanner(file)) {
-                while (scanner.hasNextLine()) {
-                    String line = scanner.nextLine().trim().toLowerCase();
-                    if (line.length() > 0) {
-                        stopWords.add(line);
-                    }
+            Scanner scanner = new Scanner(res);
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine().trim().toLowerCase();
+                if (line.length() > 0) {
+                    stopWords.add(line);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         } else {
             throw new RuntimeException("Could not load stopwords");

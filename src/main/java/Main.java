@@ -1,4 +1,5 @@
 import indexer.DocumentRepository;
+import indexer.IndexValue;
 import indexer.Indexer;
 import indexer.InvertedIndex;
 import preprocess.Preprocessor;
@@ -9,6 +10,7 @@ import search.SearchResult;
 import search.Searcher;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -140,6 +142,8 @@ public class Main {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+
+
         System.out.println("Querying...");
         SimilarityCalculator similarity = new CosineSimilarity();
         ScoreCalculator scorer = null;
@@ -175,7 +179,7 @@ public class Main {
         try {
             File folder = new File(folderStr);
             List<File> files = Indexer.getInstance().getFilesInDir(folder);
-            InvertedIndex index = Indexer.getInstance().index(files, threadCount); // Arrays.asList(files.get(0))
+            InvertedIndex index = Indexer.getInstance().index(files, threadCount); // Arrays.asList(files.get(0), files.get(1), files.get(2), files.get(3))
 
             System.out.println("Saving Index...");
             if (dataFile.exists()) {

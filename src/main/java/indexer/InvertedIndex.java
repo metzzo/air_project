@@ -161,4 +161,15 @@ public class InvertedIndex {
     public Set<String> getWords() {
         return this.index.keySet();
     }
+
+    public void checkIndex() {
+        for (String word : getWords()) {
+            IndexValue val = findByWord(word);
+            for (Integer doc : val.getAllDocuments()) {
+                if (getDocumentRepository().getDocumentById(doc) == null) {
+                    throw new RuntimeException("Index invalid");
+                }
+            }
+        }
+    }
 }

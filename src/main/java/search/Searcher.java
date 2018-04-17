@@ -27,27 +27,47 @@ public class Searcher {
     public List<SearchResult> search(InvertedIndex index, String query, ScoreCalculator scorer, SimilarityCalculator similarity, int maxNum) {
         // get candidate documents by chosing documents that contain at least 1 term of the query
         // create document out of query
-        InvertedIndex queryIndex = Indexer.getInstance().indexString(this.pipeline, index.getDocumentRepository(), "query", query);
-        DocumentInfo queryDoc = index.getDocumentRepository().getDocumentByName("query");
+        DocumentRepository tmp = new DocumentRepository();
+        InvertedIndex queryIndex = Indexer.getInstance().indexString(this.pipeline, tmp, "query", query);
+        DocumentInfo queryDoc = tmp.getDocumentByName("query");
 
-        Set<Integer> contenders = new HashSet<>();
+        Map<Integer, Integer> contenders = new HashMap<>();
         for (String word : queryIndex.getWords()) {
-            IndexValue val = index.findByWord(word);
-            contenders.addAll(val.getAllDocuments());
+            if (index.containsWord(word)) {
+                IndexValue val = index.findByWord(word);
+                for (Integer doc : val.getAllDocuments()) {
+                    if (contenders.containsKey(doc)) {
+                        int num = contenders.get(doc);
+                        contenders.put(doc, num + 1);
+                    } else {
+                        contenders.put(doc, 1);
+                    }
+                }
+            }
         }
 
-        List<SearchResult> searchResults = new LinkedList<>();
-        for (Integer contenderDocument : contenders) {
-            double score = similarity.similarityToQuery(
-                    index,
-                    queryIndex,
-                    index.getDocumentRepository().getDocumentById(contenderDocument),
-                    queryDoc,
-                    scorer
-            );
+        // average frequency
+        double avgContained = 0.0;
+        for (Integer contained : contenders.values()) {
+            avgContained += contained;
+        }
+        avgContained /= contenders.size();
 
-            SearchResult result = new SearchResult(contenderDocument, score);
-            searchResults.add(result);
+        List<SearchResult> searchResults = new LinkedList<>();
+        for (Integer contenderDocument : contenders.keySet()) {
+            Integer contained = contenders.get(contenderDocument);
+            if (contained >= avgContained * 0.25) {
+                double score = similarity.similarityToQuery(
+                        index,
+                        queryIndex,
+                        index.getDocumentRepository().getDocumentById(contenderDocument),
+                        queryDoc,
+                        scorer
+                );
+
+                SearchResult result = new SearchResult(contenderDocument, score);
+                searchResults.add(result);
+            }
         }
 
         Collections.sort(searchResults);

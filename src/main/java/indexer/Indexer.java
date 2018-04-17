@@ -47,7 +47,10 @@ public class Indexer {
                 }
 
                 if (index1 != null && index2 != null) {
+                    index1.checkIndex();
+                    index2.checkIndex();
                     index1.merge(index2);
+                    index1.checkIndex();
                     synchronized (this.queue) {
                         this.queue.add(index1);
                     }
@@ -138,7 +141,7 @@ public class Indexer {
         waitForThreads(worker);
 
         InvertedIndex result = indices.get(0);
-        System.out.println("Calculate Average Document Size ...");
+        System.out.println("Calculate Metrics ...");
         result.getDocumentRepository().calculateMetrics();
         return result;
     }
@@ -225,19 +228,26 @@ public class Indexer {
         // register documents to repository
         DocumentInfo info = documentRepository.register(doc.docNo, doc.words.size());
 
-        double sumFrequencies = 0.0;
         // make index
+        Set<String> wordsOfDocument = new HashSet<>();
         for (String word : doc.words) {
+            wordsOfDocument.add(word);
+
             IndexValue val = index.putWord(word, info.getId(), 1);
             int currentFrequency = val.getFrequencyInDocument(info.getId());
-            sumFrequencies += currentFrequency;
             if (currentFrequency > info.getMaxFrequencyOfWord()) {
                 info.setMaxFrequencyOfWord(currentFrequency);
             }
         }
 
-        info.setAverageTextFrequency(sumFrequencies / doc.words.size());
+        double sumFrequencies = 0.0;
+        for (String word : wordsOfDocument) {
+            IndexValue val = index.findByWord(word);
+            sumFrequencies += ((double)val.getFrequencyInDocument(info.getId())) / ((double)info.getMaxFrequencyOfWord());
 
+        }
+        info.setAverageTextFrequency(sumFrequencies / wordsOfDocument.size());
+        index.checkIndex();
         return index;
     }
 

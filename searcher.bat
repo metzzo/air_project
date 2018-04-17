@@ -1,0 +1,1 @@
+java -jar air_project-1.0-SNAPSHOT-jar-with-dependencies.jar --action query --topicfile ./data/topicsTREC8Adhoc.txt --score tfidf
