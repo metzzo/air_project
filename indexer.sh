@@ -1,1 +1,1 @@
-java -jar air_project-1.0-SNAPSHOT-jar-with-dependencies.jar --action index --folder ./data/Adhoc --threadcount 4
+java -Xmx20g -jar air_project-1.0-SNAPSHOT-jar-with-dependencies.jar --action index --folder ./data/Adhoc --threadcount 4

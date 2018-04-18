@@ -132,7 +132,7 @@ public class InvertedIndex {
     }
 
     public static InvertedIndex deserialize(DocumentRepository documentRepository, InputStream stream) {
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(stream));
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(stream, 8192 * 10));
         try {
             if (dis.readInt() != 42) {
                 throw new RuntimeException("Unexpected format");
