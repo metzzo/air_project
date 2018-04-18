@@ -95,8 +95,8 @@ class IndexerTest {
         URL res = classLoader.getResource("testdir");
         File file = new File(res.getFile());
         Set<File> expectedFiles = new HashSet<>(Arrays.asList(
-            new File(file.getAbsolutePath(), "testdir2\\testdir3\\testfile0"),
-            new File(file.getAbsolutePath(), "testdir3\\hallo"),
+            new File(file.getAbsolutePath(), "testdir2/testdir3/testfile0"),
+            new File(file.getAbsolutePath(), "testdir3/hallo"),
             new File(file.getAbsolutePath(), "testfile1"),
             new File(file.getAbsolutePath(), "testfile2")
         ));

@@ -6,6 +6,7 @@ document_repository.data
 inverted_index.data
 trec_eval.exe
 *.jar
+*.iml
 
 # Gradle
 .idea/**/gradle.xml

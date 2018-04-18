@@ -21,9 +21,9 @@ class PreprocessorTest {
 
     @AfterEach
     void tearDown() {
-        Preprocessor.getInstance().setCaseFolding(false);
+        Preprocessor.getInstance().setCaseFolding(true);
         Preprocessor.getInstance().setStemming(true);
-        Preprocessor.getInstance().setStopWordRemovalEnabled(false);
+        Preprocessor.getInstance().setStopWordRemovalEnabled(true);
         Preprocessor.getInstance().setLemmatizing(false);
     }
 

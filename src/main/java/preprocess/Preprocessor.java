@@ -17,7 +17,7 @@ public class Preprocessor {
 
     private boolean isStopWordRemovalEnabled = true;
     private boolean isCaseFolding = true;
-    private boolean isStemming = true;
+    private boolean isStemming = false;
     private boolean isLemmatizing = false;
 
     public static Preprocessor getInstance() {
