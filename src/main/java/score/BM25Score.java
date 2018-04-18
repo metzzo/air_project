@@ -3,7 +3,7 @@ package score;
 import indexer.DocumentInfo;
 import indexer.InvertedIndex;
 
-public class BM25Score implements ScoreCalculator {
+public class BM25Score implements ScoreFunction {
 
     private final double k1;
     private final double b;

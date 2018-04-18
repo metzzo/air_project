@@ -1,7 +1,6 @@
 import indexer.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import preprocess.Preprocessor;
 
 import java.io.File;
 import java.net.URL;
@@ -38,8 +37,8 @@ class IndexerTest {
         assertThat(result, is(not(nullValue())));
         assertThat(result, is(expectedIndex));
         assertThat(info.getSize(), is(3));
-        assertThat(info.getMaxFrequencyOfWord(), is(2));
-        assertThat(info.getAverageTextFrequency(), is((1.0/2.0 + 2.0/2.0) / 2.0));
+        assertThat(info.getMaxFrequencyOfTerm(), is(2));
+        assertThat(info.getAverageTermFrequency(), is(3.0 / 2.0));
     }
 
 

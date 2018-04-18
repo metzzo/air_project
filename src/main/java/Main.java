@@ -1,5 +1,4 @@
 import indexer.DocumentRepository;
-import indexer.IndexValue;
 import indexer.Indexer;
 import indexer.InvertedIndex;
 import preprocess.Preprocessor;
@@ -10,7 +9,6 @@ import search.SearchResult;
 import search.Searcher;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -18,24 +16,29 @@ public class Main {
         INDEX,
         QUERY
     }
-    enum Score {
+    enum ScoreFunctionType {
         TFIDF,
         BM25,
         BM25VA
     }
-    private static final File dataFile = new File("inverted_index.data");
-    private static final File xmlFile = new File("document_repository.xml");
+    enum Score {
+        COSINE,
+        SUM
+    }
 
     public static void main(String[] args) {
         Action action = Action.QUERY;
-        Score score = Score.TFIDF;
+        ScoreFunctionType scoreFunction = ScoreFunctionType.TFIDF;
+        Score score = Score.COSINE;
         String folder = "";
         int threadCount = 1;
         int startIndex = 401;
         int numResults = 1000;
         double k1 = 1.5;
         double b = 0.75;
-        String topicfile = "";
+        String topicfile = "", outputfile = "";
+        String indexfile = "inverted_index.data";
+        String documentrepofile = "document_repository.data";
 
         Preprocessor.getInstance().setLemmatizing(true);
         Preprocessor.getInstance().setStemming(false);
@@ -48,7 +51,7 @@ public class Main {
 
             switch(arg.toLowerCase()) {
                 case "--action":
-                    switch (param) {
+                    switch (param.toLowerCase()) {
                         case "index":
                             action = Action.INDEX;
                             break;
@@ -59,20 +62,33 @@ public class Main {
                             throw new RuntimeException("Unknown action");
                     }
                     break;
-                case "--score":
-                    switch (param) {
+                case "--scorefunction":
+                    switch (param.toLowerCase()) {
                         case "tfidf":
-                            score = Score.TFIDF;
+                            scoreFunction = ScoreFunctionType.TFIDF;
                             break;
                         case "bm25":
-                            score = Score.BM25;
+                            scoreFunction = ScoreFunctionType.BM25;
                             break;
                         case "bm25va":
-                            score = Score.BM25VA;
+                            scoreFunction = ScoreFunctionType.BM25VA;
+                            break;
+                        default:
+                            throw new RuntimeException("Unknown score function");
+                    }
+                    break;
+                case "--score":
+                    switch (param) {
+                        case "sum":
+                            score = Score.SUM;
+                            break;
+                        case "cosine":
+                            score = Score.COSINE;
                             break;
                         default:
                             throw new RuntimeException("Unknown score");
                     }
+                    break;
                 case "--folder":
                     folder = param;
                     break;
@@ -84,6 +100,9 @@ public class Main {
                     break;
                 case "--topicfile":
                     topicfile = param;
+                    break;
+                case "--outputfile":
+                    outputfile = param;
                     break;
                 case "--numresults":
                     numResults = Integer.valueOf(param);
@@ -114,6 +133,12 @@ public class Main {
                     Preprocessor.getInstance().setLemmatizing(enable);
                     break;
                 }
+                case "--indexfile":
+                    indexfile = param;
+                    break;
+                case "--documentrepofile":
+                    documentrepofile = param;
+                    break;
                 default:
                     throw new RuntimeException("Unknown Parameter");
             }
@@ -122,44 +147,62 @@ public class Main {
 
         switch(action) {
             case INDEX:
-                doIndex(folder, threadCount);
+                doIndex(indexfile, documentrepofile, folder, threadCount);
                 break;
             case QUERY:
-                doQuery(topicfile, startIndex, score, numResults, k1, b);
+                doQuery(indexfile, documentrepofile, topicfile, outputfile, startIndex, scoreFunction, numResults, k1, b, score);
                 break;
         }
     }
 
-    private static void doQuery(String file, int startIndex, Score scorerType, int numResults, double k1, double b) {
+    private static void doQuery(String indexfile, String documentrepofile, String file, String outputfile, int startIndex, ScoreFunctionType scoreFunctionType, int numResults, double k1, double b, Score score) {
         System.out.println("Loading Topics...");
         List<Topic> topics = TopicExtractor.getInstance().extract(new File(file), startIndex);
 
         System.out.println("Loading Index...");
         InvertedIndex index;
         try {
-            DocumentRepository repo = DocumentRepository.deserialize(new FileInputStream(xmlFile));
-            index = InvertedIndex.deserialize(repo, new FileInputStream(dataFile));
+            DocumentRepository repo = DocumentRepository.deserialize(new FileInputStream(new File(documentrepofile)));
+            index = InvertedIndex.deserialize(repo, new FileInputStream(new File(indexfile)));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
 
+        PrintStream out;
+        if (outputfile.length() > 0) {
+            try {
+                out = new PrintStream(outputfile);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            out = System.out;
+        }
 
         System.out.println("Querying...");
-        SimilarityCalculator similarity = new CosineSimilarity();
-        ScoreCalculator scorer = null;
-        switch(scorerType) {
+        ScoreCalculator similarity = null;
+        switch (score) {
+            case SUM:
+                similarity = new SumScore();
+                break;
+            case COSINE:
+                similarity = new CosineScore();
+                break;
+        }
+        ScoreFunction scoreFunction = null;
+        switch(scoreFunctionType) {
             case TFIDF:
-                scorer = new TFIDFScore();
+                scoreFunction = new TFIDFScore();
                 break;
             case BM25:
-                scorer = new BM25Score(k1, b);
+                scoreFunction = new BM25Score(k1, b);
                 break;
             case BM25VA:
-                scorer = new BM25VAScore(k1);
+                scoreFunction = new BM25VAScore(k1);
                 break;
         }
         for (Topic topic : topics) {
-            List<SearchResult> results = Searcher.getInstance().search(index, topic.getQuery(), scorer, similarity, numResults);
+            List<SearchResult> results = Searcher.getInstance().search(index, topic.getQuery(), scoreFunction, similarity, numResults);
             for (SearchResult result : results) {
                 StringBuilder str = new StringBuilder();
                 str.append(topic.getNumber());
@@ -170,28 +213,31 @@ public class Main {
                 str.append(" ");
                 str.append(result.getScore());
                 str.append(" testrun");
-                System.out.println(str);
+                out.println(str);
             }
         }
+        System.out.println("Done...");
     }
 
-    private static void doIndex(String folderStr, int threadCount) {
+    private static void doIndex(String indexstr, String documentrepostr, String folderStr, int threadCount) {
         try {
+            File indexFile= new File(indexstr);
+            File documentRepoFile = new File(documentrepostr);
             File folder = new File(folderStr);
             List<File> files = Indexer.getInstance().getFilesInDir(folder);
             InvertedIndex index = Indexer.getInstance().index(files, threadCount); // Arrays.asList(files.get(0), files.get(1), files.get(2), files.get(3))
 
             System.out.println("Saving Index...");
-            if (dataFile.exists()) {
-                dataFile.delete();
+            if (indexFile.exists()) {
+                indexFile.delete();
             }
-            index.serialize(new FileOutputStream(dataFile));
+            index.serialize(new FileOutputStream(indexFile));
 
             System.out.println("Saving Document Repository...");
-            if (xmlFile.exists()) {
-                xmlFile.delete();
+            if (documentRepoFile.exists()) {
+                documentRepoFile.delete();
             }
-            index.getDocumentRepository().serialize(new FileOutputStream(xmlFile));
+            index.getDocumentRepository().serialize(new FileOutputStream(documentRepoFile));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

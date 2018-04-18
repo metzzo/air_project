@@ -3,9 +3,8 @@ package search;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import indexer.*;
 import preprocess.Preprocessor;
-import score.CosineSimilarity;
+import score.ScoreFunction;
 import score.ScoreCalculator;
-import score.SimilarityCalculator;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,12 +23,13 @@ public class Searcher {
     }
 
 
-    public List<SearchResult> search(InvertedIndex index, String query, ScoreCalculator scorer, SimilarityCalculator similarity, int maxNum) {
+    public List<SearchResult> search(InvertedIndex index, String query, ScoreFunction scorer, ScoreCalculator similarity, int maxNum) {
         // get candidate documents by chosing documents that contain at least 1 term of the query
         // create document out of query
         DocumentRepository tmp = new DocumentRepository();
         InvertedIndex queryIndex = Indexer.getInstance().indexString(this.pipeline, tmp, "query", query);
         DocumentInfo queryDoc = tmp.getDocumentByName("query");
+        List<String> terms = Preprocessor.getInstance().preprocess(this.pipeline, query);
 
         Map<Integer, Integer> contenders = new HashMap<>();
         for (String word : queryIndex.getWords()) {
@@ -56,13 +56,14 @@ public class Searcher {
         List<SearchResult> searchResults = new LinkedList<>();
         for (Integer contenderDocument : contenders.keySet()) {
             Integer contained = contenders.get(contenderDocument);
-            if (contained >= avgContained * 0.25) {
-                double score = similarity.similarityToQuery(
+            if (contained >= avgContained * 0.5) {
+                double score = similarity.scoreOfQuery(
                         index,
                         queryIndex,
                         index.getDocumentRepository().getDocumentById(contenderDocument),
                         queryDoc,
-                        scorer
+                        scorer,
+                        terms
                 );
 
                 SearchResult result = new SearchResult(contenderDocument, score);

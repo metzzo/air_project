@@ -1,8 +1,10 @@
 import indexer.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import score.CosineSimilarity;
-import score.ScoreCalculator;
+import score.CosineScore;
+import score.ScoreFunction;
+
+import java.util.Arrays;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -38,7 +40,7 @@ public class SimilarityTest {
         index.putWord("robert", new WordOccurence(doc3.getId(), 2));
         index.putWord("wat", new WordOccurence(doc3.getId(), 4));
 
-        ScoreCalculator score = new ScoreCalculator() {
+        ScoreFunction score = new ScoreFunction() {
             @Override
             public double scoreWord(InvertedIndex calcIndex, InvertedIndex queryIndex, DocumentInfo documentInfo, String word) {
                 if (word.equals("hallo")) {
@@ -81,7 +83,7 @@ public class SimilarityTest {
         double expectedSimilarity = (score_word1_doc * score_word1_query + score_word2_doc * score_word2_query) / (length_doc * length_query);
 
         // act
-        double similarity = new CosineSimilarity().similarityToQuery(index, queryIndex, doc1, queryDoc, score);
+        double similarity = new CosineScore().scoreOfQuery(index, queryIndex, doc1, queryDoc, score, Arrays.asList("hallo", "robert"));
 
         // assert
         assertThat(similarity, is(greaterThan(0.1)));

@@ -4,9 +4,8 @@ import indexer.InvertedIndex;
 import indexer.WordOccurence;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import score.ScoreCalculator;
 
-import score.SimilarityCalculator;
+import score.ScoreCalculator;
 import search.SearchResult;
 import search.Searcher;
 
@@ -47,7 +46,7 @@ class SearcherTest {
 
 
 
-        SimilarityCalculator similarity = (index1, queryIndex, documentInfo, queryDoc, scorer) -> {
+        ScoreCalculator similarity = (index1, queryIndex, documentInfo, queryDoc, scorer, terms) -> {
             if (documentInfo.getId() == doc1.getId()) {
                 return 3;
             } else if (documentInfo.getId() == doc2.getId()) {

@@ -3,18 +3,23 @@ package score;
 import indexer.DocumentInfo;
 import indexer.InvertedIndex;
 
-public class CosineSimilarity implements SimilarityCalculator {
-    public double similarityToQuery(InvertedIndex index, InvertedIndex queryIndex, DocumentInfo documentInfo, DocumentInfo queryDoc, ScoreCalculator scorer) {
-        double[] query_vec = new double[queryDoc.getSize()];
-        double[] doc_vec = new double[queryDoc.getSize()];
+import java.util.List;
+
+public class CosineScore implements ScoreCalculator {
+    public double scoreOfQuery(InvertedIndex index, InvertedIndex queryIndex, DocumentInfo documentInfo, DocumentInfo queryDoc, ScoreFunction scorer, List<String> terms) {
+        double[] query_vec = new double[queryIndex.getWords().size()];
+        double[] doc_vec = new double[queryIndex.getWords().size()];
         int current_pos = 0;
         for (String word : queryIndex.getWords()) {
             // check if word is in document and check if is in index
             if (index.containsWord(word)) {
+                query_vec[current_pos] = scorer.scoreWord(index, queryIndex, queryDoc, word);
                 if (index.findByWord(word).isInDocument(documentInfo.getId())) {
                     doc_vec[current_pos] = scorer.scoreWord(index, index, documentInfo, word);
+                } else {
+                    doc_vec[current_pos] = -query_vec[current_pos];
                 }
-                query_vec[current_pos] = scorer.scoreWord(index, queryIndex, queryDoc, word);
+
             }
             current_pos++;
         }

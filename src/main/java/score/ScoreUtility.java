@@ -17,7 +17,7 @@ public class ScoreUtility {
     public double tf(InvertedIndex index, DocumentInfo documentInfo, String word) {
         IndexValue indexValue = index.findByWord(word);
         double frequency = indexValue.getFrequencyInDocument(documentInfo.getId());
-        double maxFrequency = documentInfo.getMaxFrequencyOfWord();
+        double maxFrequency = documentInfo.getMaxFrequencyOfTerm();
         return frequency / maxFrequency;
     }
 

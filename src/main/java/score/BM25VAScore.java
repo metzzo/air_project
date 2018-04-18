@@ -3,7 +3,7 @@ package score;
 import indexer.DocumentInfo;
 import indexer.InvertedIndex;
 
-public class BM25VAScore implements ScoreCalculator {
+public class BM25VAScore implements ScoreFunction {
     private final double k1;
 
     public BM25VAScore(double k1) {
@@ -17,8 +17,8 @@ public class BM25VAScore implements ScoreCalculator {
     }
 
     private double getB(InvertedIndex index, DocumentInfo documentInfo) {
-        double mavgtf = index.getDocumentRepository().getMeanAverageTextFrequency();
-        double avgtf = documentInfo.getAverageTextFrequency();
+        double mavgtf = index.getDocumentRepository().getMeanAverageTermFrequency();
+        double avgtf = documentInfo.getAverageTermFrequency();
         double avgdl = index.getDocumentRepository().getAverageDocumentSize();
         double Ld = documentInfo.getSize();
 

@@ -1,6 +1,7 @@
 package indexer;
 
 import java.io.*;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +12,7 @@ public class DocumentRepository {
     private Map<String, DocumentInfo> documentInfosByName;
     private Map<Integer, DocumentInfo> documentInfosById;
     private double averageDocumentSize = -1;
-    private double meanAverageTextFrequency;
+    private double meanAverageTermFrequency;
 
     public DocumentRepository() {
         this.documentInfosByName = new HashMap<>();
@@ -27,7 +28,8 @@ public class DocumentRepository {
         if (this.documentInfosByName.containsKey(info.getName())) {
             DocumentInfo old = this.documentInfosByName.get(info.getName());
             old.setSize(info.getSize());
-            old.setMaxFrequencyOfWord(info.getMaxFrequencyOfWord());
+            old.setMaxFrequencyOfTerm(info.getMaxFrequencyOfTerm());
+            old.setAverageTermFrequency(info.getAverageTermFrequency());
 
             info = old;
         } else {
@@ -77,21 +79,21 @@ public class DocumentRepository {
 
     public void calculateMetrics() {
         this.averageDocumentSize = 0.0;
-        this.meanAverageTextFrequency = 0.0;
+        this.meanAverageTermFrequency = 0.0;
         for (DocumentInfo info : this.documentInfosByName.values()) {
             this.averageDocumentSize += info.getSize();
-            this.meanAverageTextFrequency += info.getAverageTextFrequency();
+            this.meanAverageTermFrequency += info.getAverageTermFrequency();
         }
         this.averageDocumentSize /= this.documentInfosByName.size();
-        this.meanAverageTextFrequency /= this.documentInfosByName.size();
+        this.meanAverageTermFrequency /= this.documentInfosByName.size();
     }
 
     public double getAverageDocumentSize() {
         return this.averageDocumentSize;
     }
 
-    public double getMeanAverageTextFrequency() {
-        return meanAverageTextFrequency;
+    public double getMeanAverageTermFrequency() {
+        return meanAverageTermFrequency;
     }
 
     public void serialize(OutputStream stream) {
@@ -99,14 +101,14 @@ public class DocumentRepository {
         try {
             dos.writeInt(43);
             dos.writeDouble(this.averageDocumentSize);
-            dos.writeDouble(this.meanAverageTextFrequency);
+            dos.writeDouble(this.meanAverageTermFrequency);
             dos.writeInt(this.documentInfosById.size());
             for (Integer id : this.documentInfosById.keySet()) {
                 DocumentInfo info = this.documentInfosById.get(id);
                 dos.writeInt(info.getId());
                 dos.writeInt(info.getSize());
-                dos.writeInt(info.getMaxFrequencyOfWord());
-                dos.writeDouble(info.getAverageTextFrequency());
+                dos.writeInt(info.getMaxFrequencyOfTerm());
+                dos.writeDouble(info.getAverageTermFrequency());
                 dos.writeUTF(info.getName());
             }
             dos.writeInt(43);
@@ -125,14 +127,14 @@ public class DocumentRepository {
 
             DocumentRepository repo = new DocumentRepository();
             repo.averageDocumentSize = dis.readDouble();
-            repo.meanAverageTextFrequency = dis.readDouble();
+            repo.meanAverageTermFrequency = dis.readDouble();
             int numOfDocuments = dis.readInt();
             for (int i = 0; i < numOfDocuments; i++) {
                 DocumentInfo info = new DocumentInfo();
                 info.setId(dis.readInt());
                 info.setSize(dis.readInt());
-                info.setMaxFrequencyOfWord(dis.readInt());
-                info.setAverageTextFrequency(dis.readDouble());
+                info.setMaxFrequencyOfTerm(dis.readInt());
+                info.setAverageTermFrequency(dis.readDouble());
                 info.setName(dis.readUTF());
                 repo.register(info);
 

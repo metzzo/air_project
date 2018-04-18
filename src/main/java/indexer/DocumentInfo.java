@@ -4,14 +4,14 @@ public class DocumentInfo {
     private String name;
     private int id;
     private int size;
-    private int maxFrequencyOfWord;
-    private double averageTextFrequency;
+    private int maxFrequencyOfTerm;
+    private double averageTermFrequency;
 
     public DocumentInfo(String name, int id, int size) {
         this.name = name;
         this.id = id;
         this.size = size;
-        this.maxFrequencyOfWord = 0;
+        this.maxFrequencyOfTerm = 0;
     }
 
     public DocumentInfo() {
@@ -22,8 +22,8 @@ public class DocumentInfo {
         this.name = documentInfo.name;
         this.id = documentInfo.id;
         this.size = documentInfo.size;
-        this.maxFrequencyOfWord = documentInfo.maxFrequencyOfWord;
-        this.averageTextFrequency = documentInfo.averageTextFrequency;
+        this.maxFrequencyOfTerm = documentInfo.maxFrequencyOfTerm;
+        this.averageTermFrequency = documentInfo.averageTermFrequency;
     }
 
     public int getId() {
@@ -38,20 +38,20 @@ public class DocumentInfo {
         return name;
     }
 
-    public int getMaxFrequencyOfWord() {
-        return maxFrequencyOfWord;
+    public int getMaxFrequencyOfTerm() {
+        return maxFrequencyOfTerm;
     }
 
-    public double getAverageTextFrequency() {
-        return averageTextFrequency;
+    public double getAverageTermFrequency() {
+        return averageTermFrequency;
     }
 
-    public void setSize(int size) {
+    public void  setSize(int size) {
         this.size = size;
     }
 
-    public void setMaxFrequencyOfWord(int maxFrequencyOfWord) {
-        this.maxFrequencyOfWord = maxFrequencyOfWord;
+    public void setMaxFrequencyOfTerm(int maxFrequencyOfTerm) {
+        this.maxFrequencyOfTerm = maxFrequencyOfTerm;
     }
 
     public void setId(int id) {
@@ -62,8 +62,8 @@ public class DocumentInfo {
         this.name = name;
     }
 
-    public void setAverageTextFrequency(double averageTextFrequency) {
-        this.averageTextFrequency = averageTextFrequency;
+    public void setAverageTermFrequency(double averageTextFrequency) {
+        this.averageTermFrequency = averageTextFrequency;
     }
 
     @Override
@@ -75,11 +75,11 @@ public class DocumentInfo {
             return false;
         }
         DocumentInfo other = (DocumentInfo)obj;
-        return this.name.equals(other.name) && this.size == other.size && this.maxFrequencyOfWord == other.maxFrequencyOfWord;
+        return this.name.equals(other.name) && this.size == other.size && this.maxFrequencyOfTerm == other.maxFrequencyOfTerm;
     }
 
     @Override
     public int hashCode() {
-        return this.name.hashCode() + this.size * 100 + this.maxFrequencyOfWord * 1000;
+        return this.name.hashCode() + this.size * 100 + this.maxFrequencyOfTerm * 1000;
     }
 }

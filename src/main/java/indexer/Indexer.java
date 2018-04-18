@@ -130,6 +130,10 @@ public class Indexer {
         System.gc();
         worker.clear();
 
+        if (toIndex.size() > 0) {
+            throw new RuntimeException("Why not all indexed?");
+        }
+
         System.out.println("Reduce...");
         // reduce
         int numIndices = indices.size();
@@ -141,6 +145,9 @@ public class Indexer {
         waitForThreads(worker);
 
         InvertedIndex result = indices.get(0);
+        if (indices.size() != 1) {
+            throw new RuntimeException("Some indices left");
+        }
         System.out.println("Calculate Metrics ...");
         result.getDocumentRepository().calculateMetrics();
         return result;
@@ -175,8 +182,9 @@ public class Indexer {
 
             String strLine;
             RawDocument currentDocument = null;
-            StringBuilder content =  null;
+            StringBuilder content =  new StringBuilder();;
             InvertedIndex index = new InvertedIndex(documentRepository);
+            boolean shouldWrite = false;
             while ((strLine = br.readLine()) != null)   {
                 int currentPos = 0;
                 while (true) {
@@ -185,23 +193,25 @@ public class Indexer {
                         break;
                     }
                     int endPos = strLine.indexOf('>', startPos);
-                    if (content != null) {
+                    if (shouldWrite) {
                         content.append(strLine, currentPos, startPos);
                     }
 
                     String text = strLine.substring(startPos + 1, endPos).toUpperCase();
                     if (text.equals("DOCNO")) {
-                        content = new StringBuilder();
+                        content.delete(0, content.length());
+                        shouldWrite = true;
                     } else if (text.equals("DOC")) {
                         currentDocument = new RawDocument();
                     } else if (text.equals("TEXT")) {
-                        content = new StringBuilder();
+                        content.delete(0, content.length());
+                        shouldWrite = true;
                     } else if (text.equals("/DOCNO")) {
                         currentDocument.docNo = content.toString().replaceAll("\"", "").trim();
-                        content = null;
+                        shouldWrite = false;
                     } else if (text.equals("/TEXT")) {
                         currentDocument.words = Preprocessor.getInstance().preprocess(pipeline, content.toString());
-                        content = null;
+                        shouldWrite = false;
                     } else if (text.equals("/DOC")) {
                         if (currentDocument.words != null && currentDocument.docNo != null && currentDocument.words.size() > 0) {
                             this.constructIndex(documentRepository, index, currentDocument);
@@ -211,7 +221,7 @@ public class Indexer {
 
                     currentPos = endPos + 1;
                 }
-                if (content != null) {
+                if (shouldWrite) {
                     content.append(strLine, currentPos, strLine.length());
                     content.append('\n');
                 }
@@ -235,18 +245,12 @@ public class Indexer {
 
             IndexValue val = index.putWord(word, info.getId(), 1);
             int currentFrequency = val.getFrequencyInDocument(info.getId());
-            if (currentFrequency > info.getMaxFrequencyOfWord()) {
-                info.setMaxFrequencyOfWord(currentFrequency);
+            if (currentFrequency > info.getMaxFrequencyOfTerm()) {
+                info.setMaxFrequencyOfTerm(currentFrequency);
             }
         }
 
-        double sumFrequencies = 0.0;
-        for (String word : wordsOfDocument) {
-            IndexValue val = index.findByWord(word);
-            sumFrequencies += ((double)val.getFrequencyInDocument(info.getId())) / ((double)info.getMaxFrequencyOfWord());
-
-        }
-        info.setAverageTextFrequency(sumFrequencies / wordsOfDocument.size());
+        info.setAverageTermFrequency((double)info.getSize() / (double)wordsOfDocument.size());
         index.checkIndex();
         return index;
     }

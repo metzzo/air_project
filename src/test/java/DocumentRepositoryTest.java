@@ -44,17 +44,17 @@ class DocumentRepositoryTest {
     @Test
     void getMeanAverageTextFrequencyWorks() {
         DocumentInfo di = repo.register("doc1", 10);
-        di.setAverageTextFrequency(2);
+        di.setAverageTermFrequency(2);
 
         di = repo.register("doc2", 5);
-        di.setAverageTextFrequency(3);
+        di.setAverageTermFrequency(3);
 
         di = repo.register("doc3", 1);
-        di.setAverageTextFrequency(4);
+        di.setAverageTermFrequency(4);
 
         repo.calculateMetrics();
 
-        assertThat(repo.getMeanAverageTextFrequency(), is((2.0 + 3.0 + 4.0) / 3.0));
+        assertThat(repo.getMeanAverageTermFrequency(), is((2.0 + 3.0 + 4.0) / 3.0));
     }
 
     @Test
@@ -86,7 +86,7 @@ class DocumentRepositoryTest {
     void serializeDeserializeWorks() {
         // arrange
         DocumentInfo doc = repo.register("doc1", 10);
-        doc.setMaxFrequencyOfWord(5);
+        doc.setMaxFrequencyOfTerm(5);
         repo.register("doc2", 5);
         repo.register("doc3", 1);
 
@@ -103,13 +103,13 @@ class DocumentRepositoryTest {
     @Test
     void equalsWithSameInstancesWorks() {
         DocumentInfo doc = repo.register("doc1", 10);
-        doc.setMaxFrequencyOfWord(5);
+        doc.setMaxFrequencyOfTerm(5);
         repo.register("doc2", 5);
         repo.register("doc3", 1);
 
         DocumentRepository repo2 = new DocumentRepository();
         doc = repo2.register("doc1", 10);
-        doc.setMaxFrequencyOfWord(5);
+        doc.setMaxFrequencyOfTerm(5);
         repo2.register("doc2", 5);
         repo2.register("doc3", 1);
 
@@ -119,13 +119,13 @@ class DocumentRepositoryTest {
     @Test
     void equalsWithDifferentInstancesWorks() {
         DocumentInfo doc = repo.register("doc1", 10);
-        doc.setMaxFrequencyOfWord(4);
+        doc.setMaxFrequencyOfTerm(4);
         repo.register("doc2", 5);
         repo.register("doc3", 1);
 
         DocumentRepository repo2 = new DocumentRepository();
         doc = repo2.register("doc1", 10);
-        doc.setMaxFrequencyOfWord(5);
+        doc.setMaxFrequencyOfTerm(5);
         repo2.register("doc2", 5);
         repo2.register("doc3", 1);
 

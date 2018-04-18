@@ -3,4 +3,8 @@
 <TEXT>
 hello my name is robert robert
 </TEXT>
+<DOCNO> LA010289-0002 </DOCNO>
+<TEXT>
+hello my name is god
+</TEXT>
 </DOC>
