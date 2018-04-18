@@ -23,7 +23,7 @@ public class Searcher {
     }
 
 
-    public List<SearchResult> search(InvertedIndex index, String query, ScoreFunction scorer, ScoreCalculator similarity, int maxNum) {
+    public List<SearchResult> search(InvertedIndex index, String query, ScoreFunction scorer, ScoreCalculator similarity, int maxNum, boolean penalize) {
         // get candidate documents by chosing documents that contain at least 1 term of the query
         // create document out of query
         DocumentRepository tmp = new DocumentRepository();
@@ -63,7 +63,8 @@ public class Searcher {
                         index.getDocumentRepository().getDocumentById(contenderDocument),
                         queryDoc,
                         scorer,
-                        terms
+                        terms,
+                        penalize
                 );
 
                 SearchResult result = new SearchResult(contenderDocument, score);

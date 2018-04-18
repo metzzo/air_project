@@ -56,7 +56,9 @@ public class TopicExtractor {
                         if (content == null) {
                             content = new StringBuilder();
                         }
-                        endPos = strLine.length();
+                        if (text.equals("DESC") || text.equals("NARR")) {
+                            endPos = strLine.length();
+                        }
                     } else if (text.equals("TOP")) {
                         topic = new Topic();
                     } else if (text.equals("/TOP")) {

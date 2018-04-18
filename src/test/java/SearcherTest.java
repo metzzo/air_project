@@ -46,7 +46,7 @@ class SearcherTest {
 
 
 
-        ScoreCalculator similarity = (index1, queryIndex, documentInfo, queryDoc, scorer, terms) -> {
+        ScoreCalculator similarity = (index1, queryIndex, documentInfo, queryDoc, scorer, terms, penalize) -> {
             if (documentInfo.getId() == doc1.getId()) {
                 return 3;
             } else if (documentInfo.getId() == doc2.getId()) {
@@ -57,7 +57,7 @@ class SearcherTest {
         };
 
         // act
-        List<SearchResult> result = Searcher.getInstance().search(index, "hallo robert wat", null, similarity, 2);
+        List<SearchResult> result = Searcher.getInstance().search(index, "hallo robert wat", null, similarity, 2, false);
 
         // assert
         assertThat(result.size(), is(2));

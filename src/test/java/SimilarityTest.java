@@ -83,7 +83,7 @@ public class SimilarityTest {
         double expectedSimilarity = (score_word1_doc * score_word1_query + score_word2_doc * score_word2_query) / (length_doc * length_query);
 
         // act
-        double similarity = new CosineScore().scoreOfQuery(index, queryIndex, doc1, queryDoc, score, Arrays.asList("hallo", "robert"));
+        double similarity = new CosineScore().scoreOfQuery(index, queryIndex, doc1, queryDoc, score, Arrays.asList("hallo", "robert"), false);
 
         // assert
         assertThat(similarity, is(greaterThan(0.1)));

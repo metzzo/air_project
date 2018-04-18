@@ -1,6 +1,7 @@
 import indexer.DocumentRepository;
 import indexer.Indexer;
 import indexer.InvertedIndex;
+import org.apache.xpath.operations.Bool;
 import preprocess.Preprocessor;
 import preprocess.Topic;
 import preprocess.TopicExtractor;
@@ -39,6 +40,7 @@ public class Main {
         String topicfile = "", outputfile = "";
         String indexfile = "inverted_index.data";
         String documentrepofile = "document_repository.data";
+        boolean penalize = false;
 
         Preprocessor.getInstance().setLemmatizing(true);
         Preprocessor.getInstance().setStemming(false);
@@ -139,6 +141,9 @@ public class Main {
                 case "--documentrepofile":
                     documentrepofile = param;
                     break;
+                case "--penalize":
+                    penalize = Boolean.valueOf(param);
+                    break;
                 default:
                     throw new RuntimeException("Unknown Parameter");
             }
@@ -150,12 +155,12 @@ public class Main {
                 doIndex(indexfile, documentrepofile, folder, threadCount);
                 break;
             case QUERY:
-                doQuery(indexfile, documentrepofile, topicfile, outputfile, startIndex, scoreFunction, numResults, k1, b, score);
+                doQuery(indexfile, documentrepofile, topicfile, outputfile, startIndex, scoreFunction, numResults, k1, b, score, penalize);
                 break;
         }
     }
 
-    private static void doQuery(String indexfile, String documentrepofile, String file, String outputfile, int startIndex, ScoreFunctionType scoreFunctionType, int numResults, double k1, double b, Score score) {
+    private static void doQuery(String indexfile, String documentrepofile, String file, String outputfile, int startIndex, ScoreFunctionType scoreFunctionType, int numResults, double k1, double b, Score score, boolean penalize) {
         System.out.println("Loading Topics...");
         List<Topic> topics = TopicExtractor.getInstance().extract(new File(file), startIndex);
 
@@ -202,7 +207,7 @@ public class Main {
                 break;
         }
         for (Topic topic : topics) {
-            List<SearchResult> results = Searcher.getInstance().search(index, topic.getQuery(), scoreFunction, similarity, numResults);
+            List<SearchResult> results = Searcher.getInstance().search(index, topic.getQuery(), scoreFunction, similarity, numResults, penalize);
             for (SearchResult result : results) {
                 StringBuilder str = new StringBuilder();
                 str.append(topic.getNumber());

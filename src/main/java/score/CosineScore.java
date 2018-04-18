@@ -6,7 +6,7 @@ import indexer.InvertedIndex;
 import java.util.List;
 
 public class CosineScore implements ScoreCalculator {
-    public double scoreOfQuery(InvertedIndex index, InvertedIndex queryIndex, DocumentInfo documentInfo, DocumentInfo queryDoc, ScoreFunction scorer, List<String> terms) {
+    public double scoreOfQuery(InvertedIndex index, InvertedIndex queryIndex, DocumentInfo documentInfo, DocumentInfo queryDoc, ScoreFunction scorer, List<String> terms, boolean penalize) {
         double[] query_vec = new double[queryIndex.getWords().size()];
         double[] doc_vec = new double[queryIndex.getWords().size()];
         int current_pos = 0;
@@ -16,8 +16,8 @@ public class CosineScore implements ScoreCalculator {
                 query_vec[current_pos] = scorer.scoreWord(index, queryIndex, queryDoc, word);
                 if (index.findByWord(word).isInDocument(documentInfo.getId())) {
                     doc_vec[current_pos] = scorer.scoreWord(index, index, documentInfo, word);
-                } else {
-                    doc_vec[current_pos] = -query_vec[current_pos];
+                } else if (penalize) {
+                    doc_vec[current_pos] = -query_vec[current_pos]; // thats bad => penalty
                 }
 
             }
