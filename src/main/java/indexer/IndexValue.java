@@ -16,8 +16,8 @@ public class IndexValue {
         }
     }
 
-    public IndexValue() {
-        this(new HashSet<>());
+    public IndexValue(int expectedSize) {
+        this(new HashSet<>(expectedSize));
     }
 
     public IndexValue(WordOccurence occurence) {
@@ -92,12 +92,12 @@ public class IndexValue {
         }
     }
     public static IndexValue deserialize(DataInputStream dis) throws IOException  {
-        IndexValue val = new IndexValue();
         int count = dis.readInt();
+        IndexValue val = new IndexValue(count);
         for (int i = 0; i < count; i++) {
             int doc = dis.readInt();
             int frequency = dis.readInt();
-            val.putWord(doc, frequency);
+            val.documents.put(doc, frequency);
         }
         return val;
     }

@@ -11,6 +11,10 @@ public class InvertedIndex {
         this.index = new HashMap<>();
         this.documentRepo = repo;
     }
+    public InvertedIndex(DocumentRepository repo, int expectedSize) {
+        this.index = new HashMap<>(expectedSize);
+        this.documentRepo = repo;
+    }
 
     public IndexValue putWord(String word, WordOccurence wordOccurence) {
         return this.putWord(word, wordOccurence.document, wordOccurence.count);
@@ -134,13 +138,20 @@ public class InvertedIndex {
                 throw new RuntimeException("Unexpected format");
             }
 
-            InvertedIndex index = new InvertedIndex(documentRepository);
             int numOfWords = dis.readInt();
-
+            InvertedIndex index = new InvertedIndex(documentRepository, numOfWords);
+            System.out.println("Deserializing InvertedIndex");
+            double lastpercent = 0;
             for (int i = 0; i < numOfWords; i++) {
                 String word = dis.readUTF();
                 IndexValue val = IndexValue.deserialize(dis);
                 index.index.put(word, val);
+
+                double percent = i / (double)numOfWords;
+                if (percent >= lastpercent + 0.1) {
+                    System.out.println((int)(percent*100) + "%");
+                    lastpercent = percent;
+                }
             }
 
             if (dis.readInt() != 42) {

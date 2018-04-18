@@ -19,6 +19,11 @@ public class DocumentRepository {
         this.documentInfosById = new HashMap<>();
     }
 
+    public DocumentRepository(int numOfDocuments) {
+        this.documentInfosByName = new HashMap<>(numOfDocuments);
+        this.documentInfosById = new HashMap<>(numOfDocuments);
+    }
+
     public DocumentInfo register(String document, int size) {
         DocumentInfo info = new DocumentInfo(document, -1, size);
         return this.register(info);
@@ -124,11 +129,15 @@ public class DocumentRepository {
             if (dis.readInt() != 43) {
                 throw new RuntimeException("Unexpected format");
             }
-
-            DocumentRepository repo = new DocumentRepository();
-            repo.averageDocumentSize = dis.readDouble();
-            repo.meanAverageTermFrequency = dis.readDouble();
+            double avgDocumentSize = dis.readDouble();
+            double meanAvgTermFrequency = dis.readDouble();
             int numOfDocuments = dis.readInt();
+            System.out.println("Deserializing DocumentRepository");
+
+            DocumentRepository repo = new DocumentRepository(numOfDocuments);
+            repo.averageDocumentSize = avgDocumentSize;
+            repo.meanAverageTermFrequency = meanAvgTermFrequency;
+            double lastpercent = 0.0;
             for (int i = 0; i < numOfDocuments; i++) {
                 DocumentInfo info = new DocumentInfo();
                 info.setId(dis.readInt());
@@ -137,6 +146,11 @@ public class DocumentRepository {
                 info.setAverageTermFrequency(dis.readDouble());
                 info.setName(dis.readUTF());
                 repo.register(info);
+                double percent = i / (double)numOfDocuments;
+                if (percent >= lastpercent + 0.1) {
+                    System.out.println((int)(percent*100) + "%");
+                    lastpercent = percent;
+                }
 
             }
 
